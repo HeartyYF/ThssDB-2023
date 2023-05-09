@@ -1,5 +1,6 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 
@@ -20,15 +21,27 @@ public class Database {
   }
 
   private void persist() {
-    // TODO
+    // TODO: write data to file
+  }
+
+  private boolean tableExists(String name) {
+    return tables.containsKey(name);
   }
 
   public void create(String name, Column[] columns) {
-    // TODO
+    if (!tableExists(name)) {
+      tables.put(name, new Table(this.name, name, columns));
+    } else {
+      throw new DuplicateTableException();
+    }
   }
 
   public void drop() {
-    // TODO
+    if (tableExists(name)) {
+      tables.remove(name);
+    } else {
+      throw new TableNotExistException();
+    }
   }
 
   public String select(QueryTable[] queryTables) {
@@ -38,7 +51,7 @@ public class Database {
   }
 
   private void recover() {
-    // TODO
+    // TODO: read data from file
   }
 
   public void quit() {

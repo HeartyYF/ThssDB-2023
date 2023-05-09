@@ -16,19 +16,30 @@ public class Table implements Iterable<Row> {
   private int primaryIndex;
 
   public Table(String databaseName, String tableName, Column[] columns) {
-    // TODO
+    this.databaseName = databaseName;
+    this.tableName = tableName;
+    this.columns = new ArrayList<>();
+    this.lock = new ReentrantReadWriteLock();
+    this.index = new BPlusTree<>();
+    this.primaryIndex = -1;
+    for (int i = 0; i < columns.length; i++) {
+      this.columns.add(columns[i]);
+      if (columns[i].isPrimary()) {
+        this.primaryIndex = i;
+      }
+    }
   }
 
   private void recover() {
-    // TODO
+    // TODO: read from file; deserialize.
   }
 
-  public void insert() {
-    // TODO
+  public void insert(Row row) {
+    index.put(row.getEntries().get(primaryIndex), row);
   }
 
   public void delete() {
-    // TODO
+    // TODO: we may need multiple delete methods.
   }
 
   public void update() {

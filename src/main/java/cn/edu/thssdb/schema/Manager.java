@@ -1,10 +1,13 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.*;
+
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Manager {
   private HashMap<String, Database> databases;
+  private Database currentDatabase;
   private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   public static Manager getInstance() {
@@ -12,19 +15,33 @@ public class Manager {
   }
 
   public Manager() {
-    // TODO
+    databases = new HashMap<>();
   }
 
-  private void createDatabaseIfNotExists() {
-    // TODO
+  private boolean databaseExists(String name) {
+    return databases.containsKey(name);
   }
 
-  private void deleteDatabase() {
-    // TODO
+  private void createDatabaseIfNotExists(String name) {
+    if (!databaseExists(name)) {
+      databases.put(name, new Database(name));
+    } else {
+      throw new DuplicateDatabaseException();
+    }
   }
 
-  public void switchDatabase() {
-    // TODO
+  private void deleteDatabase(String name) {
+    if (databaseExists(name)) {
+      databases.remove(name);
+    } else {
+      throw new DatabaseNotExistException();
+    }
+  }
+
+  public void switchDatabase(String name) {
+    if (databaseExists(name)) {
+      currentDatabase = databases.get(name);
+    }
   }
 
   private static class ManagerHolder {
