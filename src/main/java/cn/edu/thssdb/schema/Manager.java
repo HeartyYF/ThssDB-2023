@@ -22,7 +22,7 @@ public class Manager {
     return databases.containsKey(name);
   }
 
-  private void createDatabaseIfNotExists(String name) {
+  public void createDatabaseIfNotExists(String name) {
     if (!databaseExists(name)) {
       databases.put(name, new Database(name));
     } else {
@@ -30,7 +30,7 @@ public class Manager {
     }
   }
 
-  private void deleteDatabase(String name) {
+  public void dropDatabase(String name) {
     if (databaseExists(name)) {
       databases.remove(name);
     } else {
@@ -42,6 +42,10 @@ public class Manager {
     if (databaseExists(name)) {
       currentDatabase = databases.get(name);
     }
+  }
+
+  public Database getCurrentDatabase() {
+    return currentDatabase;
   }
 
   private static class ManagerHolder {

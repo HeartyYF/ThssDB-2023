@@ -2,6 +2,7 @@ package cn.edu.thssdb.service;
 
 import cn.edu.thssdb.plan.LogicalGenerator;
 import cn.edu.thssdb.plan.LogicalPlan;
+import cn.edu.thssdb.plan.impl.*;
 import cn.edu.thssdb.rpc.thrift.ConnectReq;
 import cn.edu.thssdb.rpc.thrift.ConnectResp;
 import cn.edu.thssdb.rpc.thrift.DisconnectReq;
@@ -12,6 +13,7 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.StatusUtil;
 import org.apache.thrift.TException;
@@ -52,6 +54,18 @@ public class IServiceHandler implements IService.Iface {
     switch (plan.getType()) {
       case CREATE_DB:
         System.out.println("[DEBUG] " + plan);
+        Manager.getInstance()
+            .createDatabaseIfNotExists(((CreateDatabasePlan) plan).getDatabaseName());
+        return new ExecuteStatementResp(StatusUtil.success(), false);
+      case DROP_DB:
+        System.out.println("[DEBUG] " + plan);
+        Manager.getInstance().dropDatabase(((DropDatabasePlan) plan).getDatabaseName());
+        return new ExecuteStatementResp(StatusUtil.success(), false);
+      case CREATE_TABLE:
+        System.out.println("[DEBUG] " + plan);
+        Manager.getInstance()
+            .getCurrentDatabase()
+            .create(((CreateTablePlan) plan).getTableName(), ((CreateTablePlan) plan).getColumns());
         return new ExecuteStatementResp(StatusUtil.success(), false);
       default:
     }

@@ -38,7 +38,7 @@ public class Table implements Iterable<Row> {
     index.put(row.getEntries().get(primaryIndex), row);
   }
 
-  public void delete() {
+  public void drop() {
     // TODO: we may need multiple delete methods.
   }
 
