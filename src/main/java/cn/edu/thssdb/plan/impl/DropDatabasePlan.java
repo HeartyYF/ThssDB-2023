@@ -1,6 +1,7 @@
 package cn.edu.thssdb.plan.impl;
 
 import cn.edu.thssdb.plan.LogicalPlan;
+import cn.edu.thssdb.schema.Manager;
 
 public class DropDatabasePlan extends LogicalPlan {
   private String databaseName;
@@ -10,7 +11,13 @@ public class DropDatabasePlan extends LogicalPlan {
     this.databaseName = databaseName;
   }
 
-  public String getDatabaseName() {
-    return databaseName;
+  @Override
+  public String toString() {
+    return "DropDatabasePlan{" + "databaseName='" + databaseName + '\'' + '}';
+  }
+
+  @Override
+  public void exec() {
+    Manager.getInstance().deleteDatabase(databaseName);
   }
 }

@@ -13,7 +13,6 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
-import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.StatusUtil;
 import org.apache.thrift.TException;
@@ -50,25 +49,18 @@ public class IServiceHandler implements IService.Iface {
           StatusUtil.fail("You are not connected. Please connect first."), false);
     }
     // TODO: implement execution logic
-    LogicalPlan plan = LogicalGenerator.generate(req.statement);
-    switch (plan.getType()) {
-      case CREATE_DB:
-        System.out.println("[DEBUG] " + plan);
-        Manager.getInstance()
-            .createDatabaseIfNotExists(((CreateDatabasePlan) plan).getDatabaseName());
-        return new ExecuteStatementResp(StatusUtil.success(), false);
-      case DROP_DB:
-        System.out.println("[DEBUG] " + plan);
-        Manager.getInstance().dropDatabase(((DropDatabasePlan) plan).getDatabaseName());
-        return new ExecuteStatementResp(StatusUtil.success(), false);
-      case CREATE_TABLE:
-        System.out.println("[DEBUG] " + plan);
-        Manager.getInstance()
-            .getCurrentDatabase()
-            .create(((CreateTablePlan) plan).getTableName(), ((CreateTablePlan) plan).getColumns());
-        return new ExecuteStatementResp(StatusUtil.success(), false);
-      default:
+    try {
+      LogicalPlan plan = LogicalGenerator.generate(req.statement);
+      plan.exec();
+      System.out.println("[DEBUG] " + plan);
+      String msg = plan.getMsg();
+      if(msg != null){
+        return new ExecuteStatementResp(StatusUtil.success(msg), false);
+      }
+      return new ExecuteStatementResp(StatusUtil.success(), false);
+    } catch (Exception e) {
+      System.out.println("[DEBUG] " + e.getMessage());
+      return new ExecuteStatementResp(StatusUtil.fail(e.getMessage()), false);
     }
-    return null;
   }
 }

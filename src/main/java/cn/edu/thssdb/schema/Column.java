@@ -29,4 +29,40 @@ public class Column implements Comparable<Column> {
   public boolean isPrimary() {
     return primary == 1;
   }
+
+  public String getColumnName() {
+    return this.name;
+  }
+
+  public ColumnType getColumnType() {
+    return this.type;
+  }
+
+  public boolean isNotNull() {
+    return this.notNull;
+  }
+
+  public int getMaxLength() {
+    return this.maxLength;
+  }
+
+  public void setColumnName(String name) {
+    this.name = name;
+  }
+
+  public void setColumnType(ColumnType type) {
+    this.type = type;
+  }
+
+  public void setPrimary(int primary) {
+    this.primary = primary;
+  }
+
+  public void setNotNull(boolean notNull) {
+    this.notNull = notNull;
+  }
+
+  public void setMaxLength(int maxLength) {
+    this.maxLength = maxLength;
+  }
 }

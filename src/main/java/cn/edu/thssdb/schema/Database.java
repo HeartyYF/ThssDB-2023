@@ -3,7 +3,9 @@ package cn.edu.thssdb.schema;
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
+import cn.edu.thssdb.utils.Global;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -17,6 +19,8 @@ public class Database {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
+    File dir = new File(this.getDatabaseTableFolderPath());
+    if (!dir.exists()) dir.mkdirs();
     recover();
   }
 
@@ -29,18 +33,56 @@ public class Database {
   }
 
   public void create(String name, Column[] columns) {
-    if (!tableExists(name)) {
-      tables.put(name, new Table(this.name, name, columns));
-    } else {
-      throw new DuplicateTableException();
+    try {
+      lock.writeLock().lock();
+      if (tableExists(name)) throw new DuplicateTableException();
+      Table table = new Table(this.name, name, columns);
+      this.tables.put(name, table);
+      this.persist();
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
-  public void drop() {
-    if (tableExists(name)) {
-      tables.remove(name);
-    } else {
-      throw new TableNotExistException();
+  public Table get(String tableName) {
+    try {
+      lock.readLock().lock();
+      if (!this.tables.containsKey(tableName)) throw new TableNotExistException();
+      return this.tables.get(tableName);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  public void dropDatabase() {
+    try {
+      lock.writeLock().lock();
+      for (Table table : this.tables.values()) {
+        //        File file = new File(table.getTableMetaPath());
+        //        if (file.isFile()&&!file.delete())
+        //          throw new FileIOException(this.name + " _meta when drop the database");
+        table.drop();
+      }
+      this.tables.clear();
+      this.tables = null;
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  public void dropTable(String tableName) {
+    try {
+      lock.writeLock().lock();
+      if (!this.tables.containsKey(tableName)) throw new TableNotExistException(tableName);
+      Table table = this.tables.get(tableName);
+      //      String filename = table.getTableMetaPath();
+      //      File file = new File(filename);
+      //      if (file.isFile() && !file.delete())
+      //        throw new FileIOException(tableName + " _meta  when drop a table in database");
+      table.drop();
+      this.tables.remove(tableName);
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -56,5 +98,13 @@ public class Database {
 
   public void quit() {
     // TODO
+  }
+
+  public String getDatabasePath() {
+    return Global.DATA_ROOT_DIR + File.separator + this.name;
+  }
+
+  public String getDatabaseTableFolderPath() {
+    return this.getDatabasePath() + File.separator + "tables";
   }
 }
