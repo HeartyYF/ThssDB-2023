@@ -54,7 +54,7 @@ public class IServiceHandler implements IService.Iface {
       plan.exec();
       System.out.println("[DEBUG] " + plan);
       String msg = plan.getMsg();
-      if(msg != null){
+      if (msg != null) {
         return new ExecuteStatementResp(StatusUtil.success(msg), false);
       }
       return new ExecuteStatementResp(StatusUtil.success(), false);

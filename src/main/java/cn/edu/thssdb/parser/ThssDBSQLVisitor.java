@@ -120,10 +120,10 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     return new DropTablePlan(ctx.tableName().getText().toLowerCase());
   }
 
-   @Override
-   public LogicalPlan visitShowTableStmt(SQLParser.ShowTableStmtContext ctx) {
-      return new ShowTablePlan(ctx.tableName().getText().toLowerCase());
-   }
+  @Override
+  public LogicalPlan visitShowTableStmt(SQLParser.ShowTableStmtContext ctx) {
+    return new ShowTablePlan(ctx.tableName().getText().toLowerCase());
+  }
 
   // TODO: parser to more logical plan
 }

@@ -13,10 +13,10 @@ public abstract class LogicalPlan {
   public LogicalPlanType getType() {
     return type;
   }
+
   public String getMsg() {
     return msg;
   }
-
 
   public enum LogicalPlanType {
     // TODO: add more LogicalPlanType
