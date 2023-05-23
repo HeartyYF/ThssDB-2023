@@ -26,6 +26,7 @@ public abstract class LogicalPlan {
     SWITCH_DB,
     DROP_TABLE,
     SHOW_TABLE,
+    INSERT,
   }
 
   public void exec() {}

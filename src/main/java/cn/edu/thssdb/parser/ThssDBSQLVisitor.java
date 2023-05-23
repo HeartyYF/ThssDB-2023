@@ -125,5 +125,29 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     return new ShowTablePlan(ctx.tableName().getText().toLowerCase());
   }
 
+  @Override
+  public LogicalPlan visitInsertStmt(SQLParser.InsertStmtContext ctx) {
+    String tableName = ctx.tableName().getText();
+
+    //获取列名
+    ArrayList<String> columnNames = new ArrayList<>();
+    for (SQLParser.ColumnNameContext column : ctx.columnName()) {
+      columnNames.add(column.getText().toLowerCase());
+    }
+    if (columnNames.size() == 0) {
+      columnNames = null;
+    }
+    //获取entry
+    ArrayList<ArrayList<String>> values = new ArrayList<>();
+    for (SQLParser.ValueEntryContext valueEntry : ctx.valueEntry()) {
+      ArrayList<String> value = new ArrayList<>();
+      for (SQLParser.LiteralValueContext literalValueContext : valueEntry.literalValue()) {
+        value.add(literalValueContext.getText());
+      }
+      values.add(value);
+    }
+
+    return new InsertPlan(tableName, columnNames, values);
+  }
   // TODO: parser to more logical plan
 }

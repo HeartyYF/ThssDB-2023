@@ -17,7 +17,7 @@ public class Table implements Iterable<Row> {
   public String tableName;
   public ArrayList<Column> columns;
   public BPlusTree<Entry, Row> index;
-  private int primaryIndex;
+  public int primaryIndex;
 
   public Table(String databaseName, String tableName, Column[] columns) {
     this.lock = new ReentrantReadWriteLock();
@@ -40,6 +40,8 @@ public class Table implements Iterable<Row> {
     // TODO: read from file; deserialize.
   }
 
+  //返回表格各列的信息
+  public ArrayList<Column> getColumns() {return columns;}
   public void insert(Row row) {
     index.put(row.getEntries().get(primaryIndex), row);
   }

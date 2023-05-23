@@ -6,6 +6,7 @@ import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.schema.Row;
 
 import static cn.edu.thssdb.type.ColumnType.STRING;
 
