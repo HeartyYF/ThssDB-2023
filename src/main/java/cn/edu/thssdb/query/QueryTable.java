@@ -16,8 +16,8 @@ public class QueryTable implements Iterator<Row> {
   String comparator;
   int comparedColumnIndex;
   ArrayList<Integer> columnIndexes = new ArrayList<>();
-  List<Row> resultRows;
-  Iterator<Row> rowIterator;
+  public List<Row> resultRows;
+  public Iterator<Row> rowIterator;
 
   public QueryTable(Table table, ArrayList<String> columnNames, ArrayList<String> condition) {
     this.table = table;

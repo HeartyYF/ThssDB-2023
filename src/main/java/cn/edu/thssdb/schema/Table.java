@@ -66,6 +66,13 @@ public class Table implements Iterable<Row> {
     }
   }
 
+  public void delete(Row row) {
+    index.remove(row.getEntries().get(primaryIndex));
+  }
+  public void delete() {
+    //可能会有内存泄露？我看给的代码里没写B+树的清空操作
+    index = new BPlusTree<>();
+  }
   public void update() {
     // TODO
   }

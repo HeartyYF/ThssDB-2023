@@ -155,5 +155,11 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     // TODO: handle multiple tables such as join does
     return new SelectPlan(ctx.tableQuery(), ctx.resultColumn(), ctx.multipleCondition());
   }
+  @Override
+  public LogicalPlan visitDeleteStmt(SQLParser.DeleteStmtContext ctx) {
+    String tableName = ctx.tableName().getText();
+    return new DeletePlan(tableName, ctx.multipleCondition());
+  }
+
   // TODO: parser to more logical plan
 }

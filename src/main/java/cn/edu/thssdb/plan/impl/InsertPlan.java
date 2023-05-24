@@ -148,12 +148,11 @@ public class InsertPlan extends LogicalPlan {
     }
     insert();
   }
-  //        public void undo() {
-  //            return;
-  //            for (Row row : rowsHasInsert) {
-  //                table.delete(row);
-  //            }
-  //        }
+  public void undo() {
+    for (Row row : rowsHasInsert) {
+      table.delete(row);
+    }
+  }
   //
   //        public LinkedList<String> getLog() {
   //            return;
@@ -171,7 +170,7 @@ public class InsertPlan extends LogicalPlan {
         rowsHasInsert.add(row);
       }
     } catch (Exception e) {
-      //                undo();
+      undo();
       throw new InsertErrorException(errDuplicateKey);
     }
 
