@@ -2,6 +2,7 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
+import cn.edu.thssdb.query.MetaInfo;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
 
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static cn.edu.thssdb.type.ColumnType.STRING;
 
 public class Table implements Iterable<Row> {
   ReentrantReadWriteLock lock;
@@ -40,8 +43,11 @@ public class Table implements Iterable<Row> {
     // TODO: read from file; deserialize.
   }
 
-  //返回表格各列的信息
-  public ArrayList<Column> getColumns() {return columns;}
+  // 返回表格各列的信息
+  public ArrayList<Column> getColumns() {
+    return columns;
+  }
+
   public void insert(Row row) {
     index.put(row.getEntries().get(primaryIndex), row);
   }
@@ -73,6 +79,10 @@ public class Table implements Iterable<Row> {
     return null;
   }
 
+  public MetaInfo getMetaInfo() {
+    return new MetaInfo(this.tableName, this.columns);
+  }
+
   private class TableIterator implements Iterator<Row> {
     private Iterator<Pair<Entry, Row>> iterator;
 
@@ -94,6 +104,26 @@ public class Table implements Iterable<Row> {
   @Override
   public Iterator<Row> iterator() {
     return new TableIterator(this);
+  }
+
+  public String toString() {
+    String str = tableName + "\n-----------------------------------\n";
+    for (int i = 0; i < columns.size(); i++) {
+      Column column = columns.get(i);
+      str +=
+          " "
+              + column.getColumnName()
+              + " \t\t "
+              + column.getColumnType()
+              + (column.getColumnType() == STRING ? "(" + column.getMaxLength() + ")" : "")
+              + " \t\t "
+              + (column.isPrimary() ? "Primary Key" : "")
+              + " \t\t "
+              + (column.isNotNull() ? "Not Null" : "")
+              + "\n";
+    }
+    str += "-----------------------------------\n";
+    return str;
   }
 
   public String getTableFolderPath() {

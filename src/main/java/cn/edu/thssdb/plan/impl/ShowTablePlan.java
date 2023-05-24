@@ -2,13 +2,9 @@ package cn.edu.thssdb.plan.impl;
 
 import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.plan.LogicalPlan;
-import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
-import cn.edu.thssdb.schema.Row;
-
-import static cn.edu.thssdb.type.ColumnType.STRING;
 
 public class ShowTablePlan extends LogicalPlan {
   private String tableName;
@@ -25,27 +21,13 @@ public class ShowTablePlan extends LogicalPlan {
 
   @Override
   public void exec() {
-    String str = "Show table " + tableName + "\n-----------------------------------\n";
+    String str = "Show table ";
     Database database = Manager.getInstance().getCurrentDatabase();
     if (database == null) {
       throw new DatabaseNotExistException();
     }
     Table table = database.get(tableName);
-    for (int i = 0; i < table.columns.size(); i++) {
-      Column column = table.columns.get(i);
-      str +=
-          " "
-              + column.getColumnName()
-              + " \t\t "
-              + column.getColumnType()
-              + (column.getColumnType() == STRING ? "(" + column.getMaxLength() + ")" : "")
-              + " \t\t "
-              + (column.isPrimary() ? "Primary Key" : "")
-              + " \t\t "
-              + (column.isNotNull() ? "Not Null" : "")
-              + "\n";
-    }
-    str += "-----------------------------------\n";
+    str += table.toString();
     this.msg = str;
   }
 }

@@ -87,7 +87,8 @@ public class Database {
   }
 
   public String select(QueryTable[] queryTables) {
-    // TODO
+    // TODO? may need to transfer from SelectPlan to here
+    // currently it is not used
     QueryResult queryResult = new QueryResult(queryTables);
     return null;
   }

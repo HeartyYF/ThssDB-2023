@@ -60,6 +60,7 @@ public class IServiceHandler implements IService.Iface {
       return new ExecuteStatementResp(StatusUtil.success(), false);
     } catch (Exception e) {
       System.out.println("[DEBUG] " + e.getMessage());
+      e.printStackTrace();
       return new ExecuteStatementResp(StatusUtil.fail(e.getMessage()), false);
     }
   }

@@ -129,7 +129,7 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
   public LogicalPlan visitInsertStmt(SQLParser.InsertStmtContext ctx) {
     String tableName = ctx.tableName().getText();
 
-    //获取列名
+    // 获取列名
     ArrayList<String> columnNames = new ArrayList<>();
     for (SQLParser.ColumnNameContext column : ctx.columnName()) {
       columnNames.add(column.getText().toLowerCase());
@@ -137,7 +137,7 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     if (columnNames.size() == 0) {
       columnNames = null;
     }
-    //获取entry
+    // 获取entry
     ArrayList<ArrayList<String>> values = new ArrayList<>();
     for (SQLParser.ValueEntryContext valueEntry : ctx.valueEntry()) {
       ArrayList<String> value = new ArrayList<>();
@@ -148,6 +148,12 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     }
 
     return new InsertPlan(tableName, columnNames, values);
+  }
+
+  @Override
+  public LogicalPlan visitSelectStmt(SQLParser.SelectStmtContext ctx) {
+    // TODO: handle multiple tables such as join does
+    return new SelectPlan(ctx.tableQuery(), ctx.resultColumn(), ctx.multipleCondition());
   }
   // TODO: parser to more logical plan
 }
