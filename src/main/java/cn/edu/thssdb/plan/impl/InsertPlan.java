@@ -153,15 +153,6 @@ public class InsertPlan extends LogicalPlan {
       table.delete(row);
     }
   }
-  //
-  //        public LinkedList<String> getLog() {
-  //            return;
-  //            LinkedList<String> log = new LinkedList<>();
-  //            for (Row row : rowsHasInsert) {
-  //                log.add("INSERT " + tableName + " " + row.toString());
-  //            }
-  //            return log;
-  //        }
 
   private void insert() {
     try {

@@ -160,6 +160,11 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     String tableName = ctx.tableName().getText();
     return new DeletePlan(tableName, ctx.multipleCondition());
   }
-
+  public LogicalPlan visitUpdateStmt(SQLParser.UpdateStmtContext ctx) {
+    String tableName = ctx.tableName().getText();
+    String columnName = ctx.columnName().getText();
+    String attrValue = ctx.expression().getText();
+    return new UpdatePlan(tableName, columnName, attrValue, ctx.multipleCondition());
+  }
   // TODO: parser to more logical plan
 }

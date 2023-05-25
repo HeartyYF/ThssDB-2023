@@ -68,23 +68,12 @@ public class DeletePlan extends LogicalPlan {
             }
         }
 
-//    public void undo(){
-//        for(Row row:rowsHasDelete){
-//            table.insert(row);
-//        }
-//    }
+    public void undo(){
+        for(Row row:rowsHasDelete){
+            table.insert(row);
+        }
+    }
 
-//    /**
-//     * [method] 获取记录
-//     */
-//    public LinkedList<String> getLog(){
-//        LinkedList<String> log = new LinkedList<>();
-//        primaryIndex = table.primaryIndex;
-//        for(Row row: rowsHasDelete){
-//            log.add("DELETE " + tableName + " " + row.getEntries().get(primaryIndex).toString());
-//        }
-//        return log;
-//    }
 
     @Override
     public String toString() {

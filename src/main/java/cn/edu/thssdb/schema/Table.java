@@ -73,8 +73,19 @@ public class Table implements Iterable<Row> {
     //可能会有内存泄露？我看给的代码里没写B+树的清空操作
     index = new BPlusTree<>();
   }
-  public void update() {
-    // TODO
+  public void update(Row oldRow, Row newRow) {
+    if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
+      index.update(newRow.getEntries().get(primaryIndex), newRow);
+    }
+    else {
+      try {
+        delete(oldRow);
+        insert(newRow);
+      }
+      catch (DuplicateKeyException e){
+        throw e;
+      }
+    }
   }
 
   private void serialize() {
