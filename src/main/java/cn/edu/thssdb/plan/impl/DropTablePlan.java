@@ -13,6 +13,10 @@ public class DropTablePlan extends LogicalPlan {
     this.tableName = tableName;
   }
 
+  public String getTableName() {
+    return tableName;
+  }
+
   @Override
   public String toString() {
     return "DropTablePlan{" + "tableName='" + tableName + '\'' + '}';

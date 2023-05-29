@@ -2,12 +2,15 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.type.ColumnType;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class Column implements Comparable<Column> {
   private String name;
   private ColumnType type;
   private int primary;
   private boolean notNull;
   private int maxLength;
+  public ReentrantReadWriteLock lock;
 
   public Column(String name, ColumnType type, int primary, boolean notNull, int maxLength) {
     this.name = name;
@@ -15,6 +18,7 @@ public class Column implements Comparable<Column> {
     this.primary = primary;
     this.notNull = notNull;
     this.maxLength = maxLength;
+    this.lock = new ReentrantReadWriteLock();
   }
 
   @Override

@@ -12,6 +12,8 @@ public class Manager {
   private Database currentDatabase;
   private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+  public static boolean ISOLATION = true;
+
   public static Manager getInstance() {
     return Manager.ManagerHolder.INSTANCE;
   }

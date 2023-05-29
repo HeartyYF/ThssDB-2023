@@ -197,4 +197,8 @@ public class UpdatePlan extends LogicalPlan {
     }
     return new Row(entries);
   }
+
+  public String getTableName() {
+    return tableName;
+  }
 }

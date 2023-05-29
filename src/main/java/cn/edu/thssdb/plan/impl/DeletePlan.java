@@ -80,4 +80,8 @@ public class DeletePlan extends LogicalPlan {
     }
     return repo;
   }
+
+  public String getTableName() {
+    return tableName;
+  }
 }

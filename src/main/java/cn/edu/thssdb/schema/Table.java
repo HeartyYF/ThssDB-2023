@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static cn.edu.thssdb.type.ColumnType.STRING;
 
 public class Table implements Iterable<Row> {
-  ReentrantReadWriteLock lock;
+  public ReentrantReadWriteLock lock;
   private String databaseName;
   public String tableName;
   public ArrayList<Column> columns;

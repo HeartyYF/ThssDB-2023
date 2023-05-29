@@ -30,4 +30,8 @@ public class ShowTablePlan extends LogicalPlan {
     str += table.toString();
     this.msg = str;
   }
+
+  public String getTableName() {
+    return tableName;
+  }
 }

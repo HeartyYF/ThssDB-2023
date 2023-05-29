@@ -222,4 +222,8 @@ public class InsertPlan extends LogicalPlan {
         entries.add(new Entry(value));
     }
   }
+
+  public String getTableName() {
+    return tableName;
+  }
 }

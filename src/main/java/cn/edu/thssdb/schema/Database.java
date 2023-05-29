@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Database {
 
-  private String name;
+  public String name;
   private HashMap<String, Table> tables;
   ReentrantReadWriteLock lock;
 
@@ -24,7 +24,7 @@ public class Database {
     recover();
   }
 
-  private void persist() {
+  public void persist() {
     // TODO: write data to file
   }
 
@@ -107,5 +107,9 @@ public class Database {
 
   public String getDatabaseTableFolderPath() {
     return this.getDatabasePath() + File.separator + "tables";
+  }
+
+  public Table[] getTables() {
+    return this.tables.values().toArray(new Table[tables.size()]);
   }
 }

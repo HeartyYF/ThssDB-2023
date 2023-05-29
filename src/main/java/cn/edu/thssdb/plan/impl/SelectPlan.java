@@ -8,6 +8,7 @@ import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.sql.SQLParser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class SelectPlan extends LogicalPlan {
@@ -74,5 +75,9 @@ public class SelectPlan extends LogicalPlan {
     qts[0] = new QueryTable(db.get(tableNames.get(0)), columnNames, condition);
     QueryResult qr = new QueryResult(qts);
     this.msg = db.get(tableNames.get(0)).toString() + qr.getResult();
+  }
+
+  public Collection<String> getTableName() {
+    return tableNames;
   }
 }
