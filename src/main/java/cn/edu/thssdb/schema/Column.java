@@ -7,12 +7,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Column implements Comparable<Column> {
   private String name;
   private ColumnType type;
-  private int primary;
+  private boolean primary;
   private boolean notNull;
   private int maxLength;
   public ReentrantReadWriteLock lock;
 
-  public Column(String name, ColumnType type, int primary, boolean notNull, int maxLength) {
+  public Column(String name, ColumnType type, boolean primary, boolean notNull, int maxLength) {
     this.name = name;
     this.type = type;
     this.primary = primary;
@@ -29,9 +29,12 @@ public class Column implements Comparable<Column> {
   public String toString() {
     return name + ',' + type + ',' + primary + ',' + notNull + ',' + maxLength;
   }
+  public String toString(char separator) {
+    return name + separator + type + separator + primary + separator + notNull + separator + maxLength;
+  }
 
   public boolean isPrimary() {
-    return primary == 1;
+    return primary;
   }
 
   public String getColumnName() {
@@ -58,7 +61,7 @@ public class Column implements Comparable<Column> {
     this.type = type;
   }
 
-  public void setPrimary(int primary) {
+  public void setPrimary(boolean primary) {
     this.primary = primary;
   }
 

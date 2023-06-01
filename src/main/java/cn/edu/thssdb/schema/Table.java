@@ -5,7 +5,9 @@ import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.query.MetaInfo;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
+import cn.edu.thssdb.type.ColumnType;
 
+import java.nio.file.Paths;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,15 +23,25 @@ public class Table implements Iterable<Row> {
   public ArrayList<Column> columns;
   public BPlusTree<Entry, Row> index;
   public int primaryIndex;
+  private Persistence<Row> persistentData;
+  private Meta metaData;
 
+  //新建表
   public Table(String databaseName, String tableName, Column[] columns) {
     this.lock = new ReentrantReadWriteLock();
     this.databaseName = databaseName;
     this.tableName = tableName;
     this.columns = new ArrayList<>(Arrays.asList(columns));
     this.index = new BPlusTree<>();
-    this.primaryIndex = -1;
 
+    String folder = Paths.get(Global.DATA_ROOT_DIR, databaseName, tableName).toString();
+    String meta_name = tableName + ".meta";
+    String data_name = tableName + ".data";
+    this.persistentData = new Persistence<>(folder, data_name);
+    this.metaData = new Meta(folder, meta_name);
+    this.lock = new ReentrantReadWriteLock();
+
+    this.primaryIndex = -1;
     for (int i = 0; i < this.columns.size(); i++) {
       if (this.columns.get(i).isPrimary()) {
         if (this.primaryIndex >= 0) throw new MultiPrimaryKeyException(this.tableName);
@@ -39,8 +51,92 @@ public class Table implements Iterable<Row> {
     if (this.primaryIndex < 0) throw new NoPrimaryKeyException(this.tableName);
   }
 
+  //从meta文件中恢复表
+  public Table(String databaseName, String tableName) {
+    this.databaseName = databaseName;
+    this.tableName = tableName;
+    String folder = Paths.get(Global.DATA_ROOT_DIR, databaseName, tableName).toString();
+    String meta_name = tableName + ".meta";
+    String data_name = tableName + ".data";
+    this.persistentData = new Persistence<>(folder, data_name);
+    this.metaData = new Meta(folder, meta_name);
+    this.lock = new ReentrantReadWriteLock();
+    this.columns = new ArrayList<>();
+    this.index = new BPlusTree<>();
+    recover();
+  }
+
   private void recover() {
-    // TODO: read from file; deserialize.
+    // 恢复表中元数据信息
+    ArrayList<String []> meta_data = this.metaData.readFromFile();
+    try {
+      String [] database_name = meta_data.get(0);
+      if (!database_name[0].equals(Global.DATABASE_NAME_META)) {
+        throw new MetaFormatException();
+      }
+      if (!this.databaseName.equals(database_name[1])) {
+        throw new MetaFormatException();
+      }
+    } catch (Exception e) {
+      throw new MetaFormatException();
+    }
+
+    try {
+      String [] table_name = meta_data.get(1);
+      if (!table_name[0].equals(Global.TABLE_NAME_META)) {
+        throw new MetaFormatException();
+
+      }
+      if (!this.tableName.equals(table_name[1])) {
+        throw new MetaFormatException();
+      }
+    } catch (Exception e) {
+      throw new MetaFormatException();
+    }
+
+    try {
+      String [] primary_key = meta_data.get(2);
+      if (!primary_key[0].equals(Global.PRIMARY_KEY_INDEX_META)) {
+        throw new MetaFormatException();
+      }
+      this.primaryIndex = Integer.parseInt(primary_key[1]);
+    } catch (Exception e) {
+      throw new MetaFormatException();
+    }
+    for (int i = 3; i < meta_data.size(); i++) {
+      String [] column_info = meta_data.get(i);
+      try {
+        String name = column_info[0];
+        ColumnType type = ColumnType.stringToColumnType(column_info[1]);
+        boolean primary = column_info[2].equals("true");
+        boolean notNull = column_info[3].equals("true");
+        int maxLength = Integer.parseInt(column_info[4]);
+        this.columns.add(new Column(name, type, primary, notNull, maxLength));
+      } catch (Exception e) {
+        throw new MetaFormatException();
+      }
+    }
+
+    //恢复表中的行信息
+    ArrayList<Row> rows = this.persistentData.deserialize();
+    for(Row row:rows){
+      index.put(row.getEntries().get(primaryIndex), row);
+    }
+  }
+
+  public synchronized void persist() throws NormalIOException {
+    //写入元数据信息
+    ArrayList<String> meta_data = new ArrayList<>();
+    meta_data.add(Global.DATABASE_NAME_META + " " + databaseName);
+    meta_data.add(Global.TABLE_NAME_META + " " + tableName);
+    meta_data.add(Global.PRIMARY_KEY_INDEX_META + " " + primaryIndex);
+    for (Column column : columns) {
+      meta_data.add(column.toString(' '));
+    }
+    this.metaData.writeToFile(meta_data);
+
+    //写入表中的行信息
+    serialize();
   }
 
   // 返回表格各列的信息
@@ -90,12 +186,11 @@ public class Table implements Iterable<Row> {
   }
 
   private void serialize() {
-    // TODO
+    persistentData.serialize(iterator());
   }
 
   private ArrayList<Row> deserialize() {
-    // TODO
-    return null;
+    return this.persistentData.deserialize();
   }
 
   public MetaInfo getMetaInfo() {

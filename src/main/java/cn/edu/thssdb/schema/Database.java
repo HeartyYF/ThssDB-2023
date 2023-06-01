@@ -5,15 +5,18 @@ import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
 
+import java.nio.file.Paths;
 import java.io.File;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Database {
 
   public String name;
   private HashMap<String, Table> tables;
-  ReentrantReadWriteLock lock;
+  private ReentrantReadWriteLock lock;
+  private Meta meta;
 
   public Database(String name) {
     this.name = name;
@@ -21,11 +24,20 @@ public class Database {
     this.lock = new ReentrantReadWriteLock();
     File dir = new File(this.getDatabaseTableFolderPath());
     if (!dir.exists()) dir.mkdirs();
+    String meta_name = name + ".meta";
+    this.meta = new Meta(this.getDatabaseTableFolderPath(), meta_name);
     recover();
   }
 
-  public void persist() {
-    // TODO: write data to file
+  public synchronized void persist() {
+    ArrayList<String> keys = new ArrayList<>();
+    for(String key: tables.keySet())
+    {
+      tables.get(key).persist();
+      keys.add(key);
+    }
+
+    this.meta.writeToFile(keys);
   }
 
   private boolean tableExists(String name) {
@@ -65,6 +77,8 @@ public class Database {
       }
       this.tables.clear();
       this.tables = null;
+      this.meta.deleteFile();
+      Paths.get(Global.DATA_ROOT_DIR, name).toFile().delete();
     } finally {
       lock.writeLock().unlock();
     }
@@ -94,7 +108,11 @@ public class Database {
   }
 
   private void recover() {
-    // TODO: read data from file
+    ArrayList<String[]> table_list = this.meta.readFromFile();
+    for (String [] table_info: table_list) {
+      tables.put(table_info[0], new Table(this.name, table_info[0]));
+    }
+//    logRecover(); //恢复
   }
 
   public void quit() {

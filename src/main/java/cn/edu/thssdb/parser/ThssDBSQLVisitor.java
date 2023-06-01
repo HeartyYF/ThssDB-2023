@@ -63,7 +63,7 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
       for (String item : attrs) {
         for (Column column : columnList) {
           if (column.getColumnName().equals(item)) {
-            column.setPrimary(1);
+            column.setPrimary(true);
           }
         }
       }
@@ -73,11 +73,11 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
 
   public Column parseColumnDef(SQLParser.ColumnDefContext ctx) {
     // 约束
-    int primary = 0;
+    boolean primary = false;
     boolean notnull = false;
     for (SQLParser.ColumnConstraintContext item : ctx.columnConstraint()) {
       if (item.K_PRIMARY() != null) {
-        primary = 1;
+        primary = true;
         notnull = true;
       }
       if (item.K_NULL() != null) {

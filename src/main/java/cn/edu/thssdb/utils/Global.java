@@ -18,6 +18,9 @@ public class Global {
   public static final String QUIT = "quit;";
 
   public static final String DATA_ROOT_DIR = "data";
-
+  public static final String DATABASE_NAME_META = "DATABASE_NAME";
+  public static final String TABLE_NAME_META = "TABLE_NAME";
+  public static final String PRIMARY_KEY_INDEX_META = "PRIMARY_KEY_INDEX";
   public static final String S_URL_INTERNAL = "jdbc:default:connection";
+
 }
