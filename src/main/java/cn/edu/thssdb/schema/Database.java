@@ -1,6 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
+import cn.edu.thssdb.plan.LogicalPlan;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
@@ -17,6 +18,7 @@ public class Database {
   private HashMap<String, Table> tables;
   private ReentrantReadWriteLock lock;
   private Meta meta;
+  private LogManager logger;                      // 日志管理
 
   public Database(String name) {
     this.name = name;
@@ -113,6 +115,33 @@ public class Database {
       tables.put(table_info[0], new Table(this.name, table_info[0]));
     }
 //    logRecover(); //恢复
+  }
+
+  public void logRecover() {
+    try {
+      ArrayList<String> logs = this.logger.readLog();
+      for (String log: logs) {
+        String [] info = log.split(" ");
+        String type = info[0];
+        if (type.equals("DELETE")) {
+          tables.get(info[1]).delete(info[2]);
+        } else if (type.equals("INSERT")) {
+          tables.get(info[1]).insert(info[2]);
+        } else if (!type.equals("COMMIT")) {
+          ArrayList<LogicalPlan> plans = MyParser.getOperations(log);
+          for (LogicalPlan plan: plans) {
+            try {
+              plan.setCurrentUser(null, name);
+              plan.exec();
+            } catch (Exception e) {
+
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new CustomIOException();
+    }
   }
 
   public void quit() {
