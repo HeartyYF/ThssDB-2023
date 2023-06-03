@@ -33,4 +33,6 @@ public abstract class LogicalPlan {
   }
 
   public void exec() {}
+
+  public void undo() {}
 }

@@ -22,5 +22,4 @@ public class Global {
   public static final String TABLE_NAME_META = "TABLE_NAME";
   public static final String PRIMARY_KEY_INDEX_META = "PRIMARY_KEY_INDEX";
   public static final String S_URL_INTERNAL = "jdbc:default:connection";
-
 }

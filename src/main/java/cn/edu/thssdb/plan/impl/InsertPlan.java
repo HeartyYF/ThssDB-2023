@@ -149,6 +149,7 @@ public class InsertPlan extends LogicalPlan {
     insert();
   }
 
+  @Override
   public void undo() {
     for (Row row : rowsHasInsert) {
       table.delete(row);

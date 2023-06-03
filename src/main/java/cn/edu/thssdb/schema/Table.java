@@ -3,12 +3,12 @@ package cn.edu.thssdb.schema;
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.query.MetaInfo;
+import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
-import cn.edu.thssdb.type.ColumnType;
 
-import java.nio.file.Paths;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,7 +26,7 @@ public class Table implements Iterable<Row> {
   private Persistence<Row> persistentData;
   private Meta metaData;
 
-  //新建表
+  // 新建表
   public Table(String databaseName, String tableName, Column[] columns) {
     this.lock = new ReentrantReadWriteLock();
     this.databaseName = databaseName;
@@ -51,7 +51,7 @@ public class Table implements Iterable<Row> {
     if (this.primaryIndex < 0) throw new NoPrimaryKeyException(this.tableName);
   }
 
-  //从meta文件中恢复表
+  // 从meta文件中恢复表
   public Table(String databaseName, String tableName) {
     this.databaseName = databaseName;
     this.tableName = tableName;
@@ -68,9 +68,9 @@ public class Table implements Iterable<Row> {
 
   private void recover() {
     // 恢复表中元数据信息
-    ArrayList<String []> meta_data = this.metaData.readFromFile();
+    ArrayList<String[]> meta_data = this.metaData.readFromFile();
     try {
-      String [] database_name = meta_data.get(0);
+      String[] database_name = meta_data.get(0);
       if (!database_name[0].equals(Global.DATABASE_NAME_META)) {
         throw new MetaFormatException();
       }
@@ -82,10 +82,9 @@ public class Table implements Iterable<Row> {
     }
 
     try {
-      String [] table_name = meta_data.get(1);
+      String[] table_name = meta_data.get(1);
       if (!table_name[0].equals(Global.TABLE_NAME_META)) {
         throw new MetaFormatException();
-
       }
       if (!this.tableName.equals(table_name[1])) {
         throw new MetaFormatException();
@@ -95,7 +94,7 @@ public class Table implements Iterable<Row> {
     }
 
     try {
-      String [] primary_key = meta_data.get(2);
+      String[] primary_key = meta_data.get(2);
       if (!primary_key[0].equals(Global.PRIMARY_KEY_INDEX_META)) {
         throw new MetaFormatException();
       }
@@ -104,7 +103,7 @@ public class Table implements Iterable<Row> {
       throw new MetaFormatException();
     }
     for (int i = 3; i < meta_data.size(); i++) {
-      String [] column_info = meta_data.get(i);
+      String[] column_info = meta_data.get(i);
       try {
         String name = column_info[0];
         ColumnType type = ColumnType.stringToColumnType(column_info[1]);
@@ -117,15 +116,15 @@ public class Table implements Iterable<Row> {
       }
     }
 
-    //恢复表中的行信息
+    // 恢复表中的行信息
     ArrayList<Row> rows = this.persistentData.deserialize();
-    for(Row row:rows){
+    for (Row row : rows) {
       index.put(row.getEntries().get(primaryIndex), row);
     }
   }
 
   public synchronized void persist() throws NormalIOException {
-    //写入元数据信息
+    // 写入元数据信息
     ArrayList<String> meta_data = new ArrayList<>();
     meta_data.add(Global.DATABASE_NAME_META + " " + databaseName);
     meta_data.add(Global.TABLE_NAME_META + " " + tableName);
@@ -135,7 +134,7 @@ public class Table implements Iterable<Row> {
     }
     this.metaData.writeToFile(meta_data);
 
-    //写入表中的行信息
+    // 写入表中的行信息
     serialize();
   }
 

@@ -176,6 +176,7 @@ public class UpdatePlan extends LogicalPlan {
     }
   }
 
+  @Override
   public void undo() {
     for (int i = rowsHasUpdate.size() - 1; i >= 0; i--) {
       table.update(rowsHasUpdate.get(i).right, rowsHasUpdate.get(i).right);

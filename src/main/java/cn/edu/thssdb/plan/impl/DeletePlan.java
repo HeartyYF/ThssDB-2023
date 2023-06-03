@@ -66,6 +66,7 @@ public class DeletePlan extends LogicalPlan {
     }
   }
 
+  @Override
   public void undo() {
     for (Row row : rowsHasDelete) {
       table.insert(row);

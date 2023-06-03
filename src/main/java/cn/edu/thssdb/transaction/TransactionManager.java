@@ -185,8 +185,8 @@ public class TransactionManager {
               this.releaseTransactionWriteLock(tableName);
             }
         }
-        // TODO：我们现在还没有一个undo的东西
-        // plan.undo();
+        // TODO：不是每个plan都有undo
+        plan.undo();
       }
       if (index == 0) underTransaction = false;
     } catch (Exception e) {

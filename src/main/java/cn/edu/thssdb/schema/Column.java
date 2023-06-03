@@ -29,8 +29,10 @@ public class Column implements Comparable<Column> {
   public String toString() {
     return name + ',' + type + ',' + primary + ',' + notNull + ',' + maxLength;
   }
+
   public String toString(char separator) {
-    return name + separator + type + separator + primary + separator + notNull + separator + maxLength;
+    return name + separator + type + separator + primary + separator + notNull + separator
+        + maxLength;
   }
 
   public boolean isPrimary() {
