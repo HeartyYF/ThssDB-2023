@@ -1,5 +1,6 @@
 package cn.edu.thssdb.plan.impl;
 
+import cn.edu.thssdb.exception.AmbiguousColumnException;
 import cn.edu.thssdb.plan.LogicalPlan;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
@@ -22,6 +23,8 @@ public class SelectPlan extends LogicalPlan {
   // MultipleConditionContext, 目前只有一个，不处理多个condition
   // 0 1 2 分别是列名，比较符，值
   ArrayList<String> condition = new ArrayList<String>();
+  // 处理join，0 1是左边的东西 2 3是右边的东西
+  ArrayList<String> joinCondition = new ArrayList<>();
 
   public SelectPlan(
       List<SQLParser.TableQueryContext> tq,
@@ -30,6 +33,30 @@ public class SelectPlan extends LogicalPlan {
     super(LogicalPlanType.SELECT);
     // TODO: handle join
     tableNames.add(tq.get(0).tableName(0).getText());
+    if (tq.get(0).tableName(1) != null) {
+      tableNames.add(tq.get(0).tableName(1).getText());
+      SQLParser.ConditionContext joinmc = tq.get(0).multipleCondition().condition();
+      SQLParser.ComparerContext joincc = joinmc.expression(0).comparer();
+      if (joincc.columnFullName() != null) {
+        joinCondition.add(
+            joincc.columnFullName().tableName() == null
+                ? null
+                : joincc.columnFullName().tableName().getText());
+        joinCondition.add(joincc.columnFullName().columnName().getText());
+      } else {
+        throw new AmbiguousColumnException();
+      }
+      joincc = joinmc.expression(1).comparer();
+      if (joincc.columnFullName() != null) {
+        joinCondition.add(
+            joincc.columnFullName().tableName() == null
+                ? null
+                : joincc.columnFullName().tableName().getText());
+        joinCondition.add(joincc.columnFullName().columnName().getText());
+      } else {
+        throw new AmbiguousColumnException();
+      }
+    }
     for (SQLParser.ResultColumnContext rcc : rc) {
       // rcc分三种可能，*，tableName.*，columnFullName；columnFullName是(tableName.)?columnName
       if (rcc.tableName() != null) {
@@ -71,8 +98,8 @@ public class SelectPlan extends LogicalPlan {
   public void exec() {
     Database db = Manager.getInstance().getCurrentDatabase();
     // 这里直接假定没有join了
-    QueryTable[] qts = new QueryTable[tableNames.size()];
-    qts[0] = new QueryTable(db.get(tableNames.get(0)), columnNames, condition);
+    QueryTable[] qts = new QueryTable[1];
+    qts[0] = new QueryTable(tableNames, columnNames, condition, columnTableNames, joinCondition);
     QueryResult qr = new QueryResult(qts);
     this.msg = db.get(tableNames.get(0)).toString() + qr.getResult();
   }

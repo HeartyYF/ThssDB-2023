@@ -28,12 +28,40 @@ public class Row implements Serializable {
     }
   }
 
+  public Row(Row oldrow, ArrayList<Integer> index, int removal) {
+    if (index == null) {
+      index = new ArrayList<>();
+      for (int i = 0; i < oldrow.entries.size(); i++) {
+        index.add(i);
+      }
+    }
+    if (index.contains(removal)) {
+      index.remove(index.indexOf(removal));
+    }
+    this.entries = new ArrayList<>();
+    for (int i = 0; i < index.size(); i++) {
+      if (index.get(i) != removal) {
+        this.entries.add(oldrow.entries.get(index.get(i)));
+      }
+    }
+  }
+
+  public Row(Row row1, Row row2) {
+    this.entries = new ArrayList<>();
+    this.entries.addAll(row1.entries);
+    this.entries.addAll(row2.entries);
+  }
+
   public Row(ArrayList<Entry> entries) {
     this.entries = entries;
   }
 
   public ArrayList<Entry> getEntries() {
     return entries;
+  }
+
+  public Entry getEntry(int index) {
+    return entries.get(index);
   }
 
   public void appendEntries(ArrayList<Entry> entries) {
