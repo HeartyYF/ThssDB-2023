@@ -146,7 +146,36 @@ public class Table implements Iterable<Row> {
   public void insert(Row row) {
     index.put(row.getEntries().get(primaryIndex), row);
   }
-
+  public void insert(String row) {
+    try {
+      String[] info = row.split(",");
+      ArrayList<Entry> entries = new ArrayList<>();
+      int i = 0;
+      for (Column column: columns) {
+        String value = info[i];
+        switch (column.getColumnType()) {
+          case INT:
+            entries.add(new Entry(Integer.parseInt(value)));
+            break;
+          case LONG:
+            entries.add(new Entry(Long.parseLong(value)));
+            break;
+          case DOUBLE:
+            entries.add(new Entry(Double.parseDouble(value)));
+            break;
+          case FLOAT:
+            entries.add(new Entry(Float.parseFloat(value)));
+            break;
+          case STRING:
+            entries.add(new Entry(value));
+        }
+        i++;
+      }
+      index.put(entries.get(primaryIndex), new Row(entries));
+    } catch (Exception e) {
+      throw e;
+    }
+  }
   public void drop() {
     try {
       lock.writeLock().lock();
@@ -164,7 +193,27 @@ public class Table implements Iterable<Row> {
   public void delete(Row row) {
     index.remove(row.getEntries().get(primaryIndex));
   }
-
+  public void delete(String value) {
+    Column column = columns.get(primaryIndex);
+    Entry primaryEntry = null;
+    switch (column.getColumnType()) {
+      case INT:
+        primaryEntry = new Entry(Integer.parseInt(value));
+        break;
+      case LONG:
+        primaryEntry = new Entry(Long.parseLong(value));
+        break;
+      case DOUBLE:
+        primaryEntry = new Entry(Double.parseDouble(value));
+        break;
+      case FLOAT:
+        primaryEntry = new Entry(Float.parseFloat(value));
+        break;
+      case STRING:
+        primaryEntry = new Entry(value);
+    }
+    index.remove(primaryEntry);
+  }
   public void delete() {
     // 可能会有内存泄露？我看给的代码里没写B+树的清空操作
     index = new BPlusTree<>();

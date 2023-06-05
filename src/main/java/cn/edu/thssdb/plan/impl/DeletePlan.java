@@ -10,6 +10,7 @@ import cn.edu.thssdb.sql.SQLParser;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.LinkedList;
 
 public class DeletePlan extends LogicalPlan {
   private String tableName;
@@ -71,6 +72,15 @@ public class DeletePlan extends LogicalPlan {
     for (Row row : rowsHasDelete) {
       table.insert(row);
     }
+  }
+
+  public LinkedList<String> getLog(){
+    LinkedList<String> log = new LinkedList<>();
+    int primaryIndex = table.primaryIndex;
+    for(Row row: rowsHasDelete){
+      log.add("DELETE " + tableName + " " + row.getEntries().get(primaryIndex).toString());
+    }
+    return log;
   }
 
   @Override

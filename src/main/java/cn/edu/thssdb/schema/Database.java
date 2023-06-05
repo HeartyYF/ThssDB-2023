@@ -5,6 +5,7 @@ import cn.edu.thssdb.plan.LogicalPlan;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
+import cn.edu.thssdb.plan.LogicalGenerator;
 
 import java.nio.file.Paths;
 import java.io.File;
@@ -28,6 +29,8 @@ public class Database {
     if (!dir.exists()) dir.mkdirs();
     String meta_name = name + ".meta";
     this.meta = new Meta(this.getDatabaseTableFolderPath(), meta_name);
+    String logger_name = name + ".log";
+    this.logger = new LogManager(this.getDatabaseTableFolderPath(), logger_name);
     recover();
   }
 
@@ -40,6 +43,8 @@ public class Database {
     }
 
     this.meta.writeToFile(keys);
+    this.logger.eraseFile();
+
   }
 
   private boolean tableExists(String name) {
@@ -114,7 +119,7 @@ public class Database {
     for (String [] table_info: table_list) {
       tables.put(table_info[0], new Table(this.name, table_info[0]));
     }
-//    logRecover(); //恢复
+    logRecover(); //恢复
   }
 
   public void logRecover() {
@@ -128,10 +133,11 @@ public class Database {
         } else if (type.equals("INSERT")) {
           tables.get(info[1]).insert(info[2]);
         } else if (!type.equals("COMMIT")) {
-          ArrayList<LogicalPlan> plans = MyParser.getOperations(log);
-          for (LogicalPlan plan: plans) {
+          String [] commands = log.split("\n");
+          for (int i = 1; i < commands.length; i++) {
             try {
-              plan.setCurrentUser(null, name);
+              LogicalPlan plan = LogicalGenerator.generate(commands[i]);
+//            plan.setCurrentUser(null, name);
               plan.exec();
             } catch (Exception e) {
 
@@ -140,7 +146,7 @@ public class Database {
         }
       }
     } catch (Exception e) {
-      throw new CustomIOException();
+      throw new TableNotExistException();
     }
   }
 

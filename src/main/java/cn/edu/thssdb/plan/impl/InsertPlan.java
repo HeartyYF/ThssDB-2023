@@ -7,6 +7,7 @@ import cn.edu.thssdb.plan.LogicalPlan;
 import cn.edu.thssdb.schema.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class InsertPlan extends LogicalPlan {
   private String tableName;
@@ -154,6 +155,13 @@ public class InsertPlan extends LogicalPlan {
     for (Row row : rowsHasInsert) {
       table.delete(row);
     }
+  }
+  public LinkedList<String> getLog() {
+    LinkedList<String> log = new LinkedList<>();
+    for (Row row : rowsHasInsert) {
+      log.add("INSERT " + tableName + " " + row.toString()+ "\n");
+    }
+    return log;
   }
 
   private void insert() {
