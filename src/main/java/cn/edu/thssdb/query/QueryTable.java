@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class QueryTable implements Iterator<Row> {
-  ArrayList<Table> tables;
+  ArrayList<Table> tables = new ArrayList<>();
   Table table;
   ArrayList<String> columnNames;
   ArrayList<String> columnTableNames;
@@ -36,6 +36,7 @@ public class QueryTable implements Iterator<Row> {
       tables.add(Manager.getInstance().getCurrentDatabase().get(tableName));
     }
     this.columnNames = columnNames;
+    this.columnTableNames = columnTableNames;
     if (joinCondition.size() == 4 && tableNames.size() == 2) {
       checkJoinValid(joinCondition, condition);
     } else {

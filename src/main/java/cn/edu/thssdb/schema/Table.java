@@ -146,12 +146,13 @@ public class Table implements Iterable<Row> {
   public void insert(Row row) {
     index.put(row.getEntries().get(primaryIndex), row);
   }
+
   public void insert(String row) {
     try {
       String[] info = row.split(",");
       ArrayList<Entry> entries = new ArrayList<>();
       int i = 0;
-      for (Column column: columns) {
+      for (Column column : columns) {
         String value = info[i];
         switch (column.getColumnType()) {
           case INT:
@@ -176,6 +177,7 @@ public class Table implements Iterable<Row> {
       throw e;
     }
   }
+
   public void drop() {
     try {
       lock.writeLock().lock();
@@ -193,6 +195,7 @@ public class Table implements Iterable<Row> {
   public void delete(Row row) {
     index.remove(row.getEntries().get(primaryIndex));
   }
+
   public void delete(String value) {
     Column column = columns.get(primaryIndex);
     Entry primaryEntry = null;
@@ -214,6 +217,7 @@ public class Table implements Iterable<Row> {
     }
     index.remove(primaryEntry);
   }
+
   public void delete() {
     // 可能会有内存泄露？我看给的代码里没写B+树的清空操作
     index = new BPlusTree<>();

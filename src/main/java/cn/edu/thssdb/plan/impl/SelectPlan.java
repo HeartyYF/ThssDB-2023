@@ -14,17 +14,18 @@ import java.util.List;
 
 public class SelectPlan extends LogicalPlan {
   // TableQueryContext, 标识从哪些table里读
-  ArrayList<String> tableNames = new ArrayList<String>();
+  ArrayList<String> tableNames = new ArrayList<>();
   // ResultColumnContext, 标识读哪些column
   // columnTable是column所在的table
   // column是column的名字
-  ArrayList<String> columnTableNames = new ArrayList<String>();
-  ArrayList<String> columnNames = new ArrayList<String>();
+  ArrayList<String> columnTableNames = new ArrayList<>();
+  ArrayList<String> columnNames = new ArrayList<>();
   // MultipleConditionContext, 目前只有一个，不处理多个condition
   // 0 1 2 分别是列名，比较符，值
-  ArrayList<String> condition = new ArrayList<String>();
+  ArrayList<String> condition = new ArrayList<>();
   // 处理join，0 1是左边的东西 2 3是右边的东西
   ArrayList<String> joinCondition = new ArrayList<>();
+  QueryResult result;
 
   public SelectPlan(
       List<SQLParser.TableQueryContext> tq,
@@ -89,9 +90,13 @@ public class SelectPlan extends LogicalPlan {
     return "SelectPlan "
         + this.tableNames.toString()
         + " "
+        + this.columnTableNames.toString()
+        + " "
         + this.columnNames.toString()
         + " "
-        + this.condition.toString();
+        + this.condition.toString()
+        + " "
+        + this.joinCondition.toString();
   }
 
   @Override
@@ -100,11 +105,15 @@ public class SelectPlan extends LogicalPlan {
     // 这里直接假定没有join了
     QueryTable[] qts = new QueryTable[1];
     qts[0] = new QueryTable(tableNames, columnNames, condition, columnTableNames, joinCondition);
-    QueryResult qr = new QueryResult(qts);
-    this.msg = db.get(tableNames.get(0)).toString() + qr.getResult();
+    result = new QueryResult(qts);
+    this.msg = db.get(tableNames.get(0)).toString() + result.getResult();
   }
 
   public Collection<String> getTableName() {
     return tableNames;
+  }
+
+  public List<List<String>> getRowList() {
+    return result.getRowList();
   }
 }

@@ -1,16 +1,16 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
+import cn.edu.thssdb.plan.LogicalGenerator;
 import cn.edu.thssdb.plan.LogicalPlan;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
-import cn.edu.thssdb.plan.LogicalGenerator;
 
-import java.nio.file.Paths;
 import java.io.File;
-import java.util.HashMap;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Database {
@@ -19,7 +19,7 @@ public class Database {
   private HashMap<String, Table> tables;
   private ReentrantReadWriteLock lock;
   private Meta meta;
-  private LogManager logger;                      // 日志管理
+  private LogManager logger; // 日志管理
 
   public Database(String name) {
     this.name = name;
@@ -36,15 +36,13 @@ public class Database {
 
   public synchronized void persist() {
     ArrayList<String> keys = new ArrayList<>();
-    for(String key: tables.keySet())
-    {
+    for (String key : tables.keySet()) {
       tables.get(key).persist();
       keys.add(key);
     }
 
     this.meta.writeToFile(keys);
     this.logger.eraseFile();
-
   }
 
   private boolean tableExists(String name) {
@@ -116,28 +114,28 @@ public class Database {
 
   private void recover() {
     ArrayList<String[]> table_list = this.meta.readFromFile();
-    for (String [] table_info: table_list) {
+    for (String[] table_info : table_list) {
       tables.put(table_info[0], new Table(this.name, table_info[0]));
     }
-    logRecover(); //恢复
+    logRecover(); // 恢复
   }
 
   public void logRecover() {
     try {
       ArrayList<String> logs = this.logger.readLog();
-      for (String log: logs) {
-        String [] info = log.split(" ");
+      for (String log : logs) {
+        String[] info = log.split(" ");
         String type = info[0];
         if (type.equals("DELETE")) {
           tables.get(info[1]).delete(info[2]);
         } else if (type.equals("INSERT")) {
           tables.get(info[1]).insert(info[2]);
         } else if (!type.equals("COMMIT")) {
-          String [] commands = log.split("\n");
+          String[] commands = log.split("\n");
           for (int i = 1; i < commands.length; i++) {
             try {
               LogicalPlan plan = LogicalGenerator.generate(commands[i]);
-//            plan.setCurrentUser(null, name);
+              //            plan.setCurrentUser(null, name);
               plan.exec();
             } catch (Exception e) {
 

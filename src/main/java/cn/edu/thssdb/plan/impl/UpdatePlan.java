@@ -183,12 +183,13 @@ public class UpdatePlan extends LogicalPlan {
     }
   }
 
-  public LinkedList<String> getLog(){
+  public LinkedList<String> getLog() {
     LinkedList<String> deleteLog = new LinkedList<>();
     LinkedList<String> insertLog = new LinkedList<>();
     int primaryIndex = table.primaryIndex;
-    for(Pair<Row, Row> pair: rowsHasUpdate){
-      deleteLog.add("DELETE " + tableName + " " + pair.left.getEntries().get(primaryIndex).toString());
+    for (Pair<Row, Row> pair : rowsHasUpdate) {
+      deleteLog.add(
+          "DELETE " + tableName + " " + pair.left.getEntries().get(primaryIndex).toString());
       insertLog.add("INSERT " + tableName + " " + pair.right.toString());
     }
     deleteLog.addAll(insertLog);

@@ -53,6 +53,11 @@ public class IServiceHandler implements IService.Iface {
       LogicalPlan plan = LogicalGenerator.generate(req.statement);
       plan.exec();
       System.out.println("[DEBUG] " + plan);
+      if (plan instanceof SelectPlan) {
+        // System.out.println(((SelectPlan) plan).getRowList());
+        return new ExecuteStatementResp(StatusUtil.success(), true)
+            .setRowList(((SelectPlan) plan).getRowList());
+      }
       String msg = plan.getMsg();
       if (msg != null) {
         return new ExecuteStatementResp(StatusUtil.success(msg), false);

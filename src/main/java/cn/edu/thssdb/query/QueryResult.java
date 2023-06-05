@@ -20,6 +20,16 @@ public class QueryResult {
     }
   }
 
+  public List<List<String>> getRowList() {
+    List<List<String>> result = new LinkedList<>();
+    for (QueryTable table : queryTables) {
+      for (Row row : table.resultRows) {
+        result.add(row.toStringList());
+      }
+    }
+    return result;
+  }
+
   public String getResult() {
     String result = "";
     for (QueryTable table : queryTables) {

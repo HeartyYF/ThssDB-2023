@@ -156,10 +156,11 @@ public class InsertPlan extends LogicalPlan {
       table.delete(row);
     }
   }
+
   public LinkedList<String> getLog() {
     LinkedList<String> log = new LinkedList<>();
     for (Row row : rowsHasInsert) {
-      log.add("INSERT " + tableName + " " + row.toString()+ "\n");
+      log.add("INSERT " + tableName + " " + row.toString() + "\n");
     }
     return log;
   }
@@ -225,7 +226,7 @@ public class InsertPlan extends LogicalPlan {
         }
         break;
       case STRING:
-        value = value.substring(1, (value.length()-1));
+        value = value.substring(1, (value.length() - 1));
         if (value.length() > column.getMaxLength()) {
           throw new InsertErrorException(errStringLength + value + " " + column.getMaxLength());
         }
