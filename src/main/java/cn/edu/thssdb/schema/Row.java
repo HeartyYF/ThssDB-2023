@@ -24,33 +24,43 @@ public class Row implements Serializable {
       return;
     }
     this.entries = new ArrayList<>();
-    for (int i = 0; i < index.size(); i++) {
-      this.entries.add(oldrow.entries.get(index.get(i)));
+    for (Integer integer : index) {
+      this.entries.add(oldrow.entries.get(integer));
     }
   }
 
-  public Row(Row oldrow, ArrayList<Integer> index, int removal) {
-    if (index == null) {
-      index = new ArrayList<>();
-      for (int i = 0; i < oldrow.entries.size(); i++) {
-        index.add(i);
-      }
-    }
-    if (index.contains(removal)) {
-      index.remove(index.indexOf(removal));
-    }
+  public Row(Row row1, Row row2, ArrayList<Integer> index, ArrayList<Integer> from, int removal) {
     this.entries = new ArrayList<>();
+    boolean[] flag1 = new boolean[row1.entries.size()];
+    boolean[] flag2 = new boolean[row2.entries.size()];
+    flag2[removal] = true;
     for (int i = 0; i < index.size(); i++) {
-      if (index.get(i) != removal) {
-        this.entries.add(oldrow.entries.get(index.get(i)));
+      if (from.get(i) == 1 && !flag1[index.get(i)]) {
+        if (index.get(i) != -1) {
+          this.entries.add(row1.entries.get(index.get(i)));
+          flag1[index.get(i)] = true;
+        } else {
+          for (int j = 0; j < row1.entries.size(); j++) {
+            if (!flag1[j]) {
+              this.entries.add(row1.entries.get(j));
+              flag1[j] = true;
+            }
+          }
+        }
+      } else if (from.get(i) == 2 && !flag2[index.get(i)]) {
+        if (index.get(i) != -1) {
+          this.entries.add(row2.entries.get(index.get(i)));
+          flag2[index.get(i)] = true;
+        } else {
+          for (int j = 0; j < row2.entries.size(); j++) {
+            if (!flag2[j]) {
+              this.entries.add(row2.entries.get(j));
+              flag2[j] = true;
+            }
+          }
+        }
       }
     }
-  }
-
-  public Row(Row row1, Row row2) {
-    this.entries = new ArrayList<>();
-    this.entries.addAll(row1.entries);
-    this.entries.addAll(row2.entries);
   }
 
   public Row(ArrayList<Entry> entries) {

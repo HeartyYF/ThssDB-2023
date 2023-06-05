@@ -21,7 +21,7 @@ public class QueryTable implements Iterator<Row> {
   String comparator;
   int comparedColumnIndex;
   ArrayList<Integer> columnIndexes = new ArrayList<>();
-  ArrayList<Integer> columnIndexes2 = new ArrayList<>();
+  ArrayList<Integer> tableColumnOrder = new ArrayList<>();
   ArrayList<Integer> joinIndexes = new ArrayList<>();
   public List<Row> resultRows;
   public Iterator<Row> rowIterator;
@@ -53,13 +53,16 @@ public class QueryTable implements Iterator<Row> {
 
   private void checkJoinValid(ArrayList<String> joinCondition, ArrayList<String> condition) {
     if (joinCondition.size() == 4) {
-      if (joinCondition.get(0) != tables.get(0).tableName) {
-        if (joinCondition.get(0) != tables.get(1).tableName) {
+      if (joinCondition.get(0).equals(tables.get(0).tableName)) {
+        if (joinCondition.get(0).equals(tables.get(1).tableName)) {
           throw new TableNotMatchException(joinCondition.get(0));
         } else {
-          Table temp = tables.get(0);
-          tables.set(0, tables.get(1));
-          tables.set(1, temp);
+          String tableName = joinCondition.get(0);
+          joinCondition.set(0, joinCondition.get(2));
+          joinCondition.set(2, tableName);
+          String columnName = joinCondition.get(1);
+          joinCondition.set(1, joinCondition.get(3));
+          joinCondition.set(3, columnName);
         }
       }
       MetaInfo metaInfo1 = tables.get(0).getMetaInfo();
@@ -83,14 +86,18 @@ public class QueryTable implements Iterator<Row> {
             if (!tableName.equals(tables.get(1).tableName)) {
               throw new TableNotMatchException(columnTableNames.get(i));
             } else {
-              columnIndexes2 = null;
+              columnIndexes.add(-1);
+              tableColumnOrder.add(2);
             }
           } else {
-            columnIndexes = null;
+            columnIndexes.add(-1);
+            tableColumnOrder.add(1);
           }
         } else {
-          columnIndexes = null;
-          columnIndexes2 = null;
+          columnIndexes.add(-1);
+          tableColumnOrder.add(1);
+          columnIndexes.add(-1);
+          tableColumnOrder.add(2);
         }
       } else {
         String columnName = columnNames.get(i);
@@ -104,20 +111,16 @@ public class QueryTable implements Iterator<Row> {
               if (index == -1) {
                 throw new ColumnNotExistException(columnName);
               }
-              if (columnIndexes2 == null) {
-                continue;
-              }
-              columnIndexes2.add(index);
+              columnIndexes.add(index);
+              tableColumnOrder.add(2);
             }
           } else {
             int index = tables.get(0).getMetaInfo().columnFind(columnName);
             if (index == -1) {
               throw new ColumnNotExistException(columnName);
             }
-            if (columnIndexes == null) {
-              continue;
-            }
             columnIndexes.add(index);
+            tableColumnOrder.add(1);
           }
         } else {
           int index = tables.get(0).getMetaInfo().columnFind(columnName);
@@ -126,17 +129,13 @@ public class QueryTable implements Iterator<Row> {
             if (index == -1) {
               throw new ColumnNotExistException(columnName);
             }
-            if (columnIndexes2 == null) {
-              continue;
-            }
-            columnIndexes2.add(index);
+            columnIndexes.add(index);
+            tableColumnOrder.add(2);
           } else {
             int index2 = tables.get(1).getMetaInfo().columnFind(columnName);
             if (index2 == -1) {
-              if (columnIndexes == null) {
-                continue;
-              }
               columnIndexes.add(index);
+              tableColumnOrder.add(1);
             } else {
               throw new AmbiguousColumnException(columnName);
             }
@@ -177,11 +176,13 @@ public class QueryTable implements Iterator<Row> {
         if (metaInfo.columnFind(condition.get(2)) == -1) {
           throw new ColumnNotExistException(condition.get(0));
         } else {
+          table = tables.get(1);
           comparedColumnIndex = metaInfo.columnFind(condition.get(2));
           comparator = comparatorSwap(condition.get(1));
           comparedValue = getTypedValue(condition.get(0), comparedColumnIndex);
         }
       } else {
+        table = tables.get(0);
         comparedColumnIndex = metaInfo.columnFind(condition.get(0));
         comparator = condition.get(1);
         comparedValue = getTypedValue(condition.get(2), comparedColumnIndex);
@@ -196,7 +197,7 @@ public class QueryTable implements Iterator<Row> {
     for (Row row1 : tables.get(0)) {
       for (Row row2 : tables.get(1)) {
         if (row1.getEntry(index1).equals(row2.getEntry(index2))) {
-          Row row = new Row(new Row(row1, columnIndexes), new Row(row2, columnIndexes2, index2));
+          Row row = new Row(row1, row2, columnIndexes, tableColumnOrder, index2);
           resultRows.add(row);
         }
       }
