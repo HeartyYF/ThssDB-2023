@@ -225,8 +225,9 @@ public class InsertPlan extends LogicalPlan {
         }
         break;
       case STRING:
+        value = value.substring(1, (value.length()-1));
         if (value.length() > column.getMaxLength()) {
-          throw new InsertErrorException(errStringLength);
+          throw new InsertErrorException(errStringLength + value + " " + column.getMaxLength());
         }
         entries.add(new Entry(value));
     }

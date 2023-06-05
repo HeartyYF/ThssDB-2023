@@ -101,6 +101,7 @@ public class CRUDTestExecutor extends TestExecutor {
     List<DataType> resultTypes = new ArrayList<>();
     resultTypes.add(tableSchema.types.get(0));
     resultTypes.add(tableSchema.types.get(1));
+    System.out.println(resp.rowList);
     Set<List<Object>> queryResult = convertData(resp.rowList, resultTypes);
     List<Integer> columnList = new ArrayList<>();
     columnList.add(0);
