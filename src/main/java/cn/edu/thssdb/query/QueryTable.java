@@ -51,6 +51,29 @@ public class QueryTable implements Iterator<Row> {
     checkValid(condition);
   }
 
+  private void addIndexOrder(int index, int tableIndex) {
+    if (indexContains(index, tableIndex)) {
+      return;
+    }
+    columnIndexes.add(index);
+    tableColumnOrder.add(tableIndex);
+  }
+
+  private void addIndexOrderAll(int tableIndex, int size) {
+    for (int i = 0; i < size; i++) {
+      addIndexOrder(i, tableIndex);
+    }
+  }
+
+  private boolean indexContains(int index, int tableIndex) {
+    if (columnIndexes.contains(index)) {
+      if (tableColumnOrder.get(columnIndexes.indexOf(index)).equals(tableIndex)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void checkJoinValid(ArrayList<String> joinCondition, ArrayList<String> condition) {
     if (joinCondition.size() == 4) {
       if (joinCondition.get(0).equals(tables.get(0).tableName)) {
@@ -86,18 +109,14 @@ public class QueryTable implements Iterator<Row> {
             if (!tableName.equals(tables.get(1).tableName)) {
               throw new TableNotMatchException(columnTableNames.get(i));
             } else {
-              columnIndexes.add(-1);
-              tableColumnOrder.add(2);
+              addIndexOrderAll(2, tables.get(1).getMetaInfo().columnSize());
             }
           } else {
-            columnIndexes.add(-1);
-            tableColumnOrder.add(1);
+            addIndexOrderAll(1, tables.get(0).getMetaInfo().columnSize());
           }
         } else {
-          columnIndexes.add(-1);
-          tableColumnOrder.add(1);
-          columnIndexes.add(-1);
-          tableColumnOrder.add(2);
+          addIndexOrderAll(1, tables.get(0).getMetaInfo().columnSize());
+          addIndexOrderAll(2, tables.get(1).getMetaInfo().columnSize());
         }
       } else {
         String columnName = columnNames.get(i);
@@ -111,16 +130,14 @@ public class QueryTable implements Iterator<Row> {
               if (index == -1) {
                 throw new ColumnNotExistException(columnName);
               }
-              columnIndexes.add(index);
-              tableColumnOrder.add(2);
+              addIndexOrder(index, 2);
             }
           } else {
             int index = tables.get(0).getMetaInfo().columnFind(columnName);
             if (index == -1) {
               throw new ColumnNotExistException(columnName);
             }
-            columnIndexes.add(index);
-            tableColumnOrder.add(1);
+            addIndexOrder(index, 1);
           }
         } else {
           int index = tables.get(0).getMetaInfo().columnFind(columnName);
@@ -129,17 +146,24 @@ public class QueryTable implements Iterator<Row> {
             if (index == -1) {
               throw new ColumnNotExistException(columnName);
             }
-            columnIndexes.add(index);
-            tableColumnOrder.add(2);
+            addIndexOrder(index, 2);
           } else {
             int index2 = tables.get(1).getMetaInfo().columnFind(columnName);
             if (index2 == -1) {
-              columnIndexes.add(index);
-              tableColumnOrder.add(1);
+              addIndexOrder(index, 1);
             } else {
               throw new AmbiguousColumnException(columnName);
             }
           }
+        }
+      }
+    }
+    if (indexContains(joinIndexes.get(0), 1) && indexContains(joinIndexes.get(1), 2)) {
+      for (int i = 0; i < columnIndexes.size(); i++) {
+        if (columnIndexes.get(i).equals(joinIndexes.get(0)) && tableColumnOrder.get(i).equals(1)) {
+          columnIndexes.remove(i);
+          tableColumnOrder.remove(i);
+          break;
         }
       }
     }
@@ -178,27 +202,45 @@ public class QueryTable implements Iterator<Row> {
         } else {
           table = tables.get(1);
           comparedColumnIndex = metaInfo.columnFind(condition.get(2));
-          comparator = comparatorSwap(condition.get(1));
           comparedValue = getTypedValue(condition.get(0), comparedColumnIndex);
+          comparedColumnIndex = columnJoinFind(metaInfo.columnFind(condition.get(2)), 2);
+          comparator = comparatorSwap(condition.get(1));
         }
       } else {
         table = tables.get(0);
         comparedColumnIndex = metaInfo.columnFind(condition.get(0));
-        comparator = condition.get(1);
         comparedValue = getTypedValue(condition.get(2), comparedColumnIndex);
+        comparedColumnIndex = columnJoinFind(metaInfo.columnFind(condition.get(0)), 1);
+        comparator = condition.get(1);
       }
     }
+    // System.out.println(columnIndexes);
+    // System.out.println(tableColumnOrder);
+  }
+
+  private int columnJoinFind(int index, int tableIndex) {
+    int i = 0;
+    for (; i < columnIndexes.size(); i++) {
+      if (columnIndexes.get(i) == index && tableColumnOrder.get(i) == tableIndex) {
+        break;
+      }
+    }
+    return i;
   }
 
   private void handleJoinTable() {
     resultRows = new ArrayList<>();
     int index1 = joinIndexes.get(0);
     int index2 = joinIndexes.get(1);
+    // System.out.println(comparedColumnIndex);
+
     for (Row row1 : tables.get(0)) {
       for (Row row2 : tables.get(1)) {
         if (row1.getEntry(index1).equals(row2.getEntry(index2))) {
-          Row row = new Row(row1, row2, columnIndexes, tableColumnOrder, index2);
-          resultRows.add(row);
+          Row row = new Row(row1, row2, columnIndexes, tableColumnOrder);
+          if (conditionCheck(row)) {
+            resultRows.add(row);
+          }
         }
       }
     }

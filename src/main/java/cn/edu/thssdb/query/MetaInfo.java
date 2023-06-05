@@ -25,6 +25,10 @@ public class MetaInfo {
     return -1;
   }
 
+  public int columnSize() {
+    return columns.size();
+  }
+
   public ColumnType getType(int index) {
     return columns.get(index).getColumnType();
   }

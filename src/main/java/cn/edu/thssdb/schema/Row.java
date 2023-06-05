@@ -29,36 +29,13 @@ public class Row implements Serializable {
     }
   }
 
-  public Row(Row row1, Row row2, ArrayList<Integer> index, ArrayList<Integer> from, int removal) {
+  public Row(Row row1, Row row2, ArrayList<Integer> index, ArrayList<Integer> from) {
     this.entries = new ArrayList<>();
-    boolean[] flag1 = new boolean[row1.entries.size()];
-    boolean[] flag2 = new boolean[row2.entries.size()];
-    flag2[removal] = true;
     for (int i = 0; i < index.size(); i++) {
-      if (from.get(i) == 1 && !flag1[index.get(i)]) {
-        if (index.get(i) != -1) {
-          this.entries.add(row1.entries.get(index.get(i)));
-          flag1[index.get(i)] = true;
-        } else {
-          for (int j = 0; j < row1.entries.size(); j++) {
-            if (!flag1[j]) {
-              this.entries.add(row1.entries.get(j));
-              flag1[j] = true;
-            }
-          }
-        }
-      } else if (from.get(i) == 2 && !flag2[index.get(i)]) {
-        if (index.get(i) != -1) {
-          this.entries.add(row2.entries.get(index.get(i)));
-          flag2[index.get(i)] = true;
-        } else {
-          for (int j = 0; j < row2.entries.size(); j++) {
-            if (!flag2[j]) {
-              this.entries.add(row2.entries.get(j));
-              flag2[j] = true;
-            }
-          }
-        }
+      if (from.get(i) == 1) {
+        this.entries.add(row1.entries.get(index.get(i)));
+      } else if (from.get(i) == 2) {
+        this.entries.add(row2.entries.get(index.get(i)));
       }
     }
   }
