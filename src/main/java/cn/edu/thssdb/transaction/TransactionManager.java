@@ -14,40 +14,40 @@ import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TransactionManager {
-  private Database database;
   private Manager manager;
-  private LinkedList<LogicalPlan> plans; // 操作列表，可能需要回滚
+  private LinkedList<LogicalPlan> plans = new LinkedList<>(); // 操作列表，可能需要回滚
   private HashMap<String, Integer> savepoints; // 检查点
   private LinkedList<ReentrantReadWriteLock.ReadLock> readLockList;
   private LinkedList<ReentrantReadWriteLock.WriteLock> writeLockList;
+  private long sessionId;
   private boolean underTransaction = false; // 是否在transaction过程
 
-  public TransactionManager(Database database) {
-    this.database = database;
+  public TransactionManager(long sessionId) {
+    this.sessionId = sessionId;
     this.manager = Manager.getInstance();
     this.savepoints = new HashMap<>();
     this.readLockList = new LinkedList<>();
     this.writeLockList = new LinkedList<>();
   }
 
-  public void setDatabase(Database database) {
-    this.database = database;
+  private Database getDatabase() {
+    return manager.getCurrentDatabase(sessionId);
   }
 
   public TransactionStatus exec(LogicalPlan plan) {
     if (plan instanceof SelectPlan || plan instanceof ShowTablePlan) return readTransaction(plan);
     else if (plan instanceof UpdatePlan || plan instanceof DeletePlan || plan instanceof InsertPlan)
       return writeTransaction(plan);
-    // 这些都没有对应的plan，写了再说
-    // else if (plan instanceof CommitPlan) return commitTransaction();
-    // else if (plan instanceof RollbackPlan) return rollbackTransaction(plan.getSavepoint());
-    // else if (plan instanceof SavepointPlan) return savepointTransaction(plan.getSavepoint());
-    // else if (plan instanceof BeginTransactionPlan) return beginTransaction();
-    // else if (plan instanceof CheckpointPlan) return checkpointTransaction();
+    else if (plan instanceof CommitPlan) return commitTransaction();
+    else if (plan instanceof RollbackPlan) return rollbackTransaction(((RollbackPlan) plan).savepointName);
+    else if (plan instanceof SavepointPlan) return savepointTransaction(((SavepointPlan) plan).savepointName);
+    else if (plan instanceof BeginTransactionPlan) return beginTransaction();
+    else if (plan instanceof CheckpointPlan) return checkpointTransaction();
     else return endTransaction(plan);
   }
 
   private TransactionStatus endTransaction(LogicalPlan plan) {
+    Database database = getDatabase();
     if (underTransaction) {
       commitTransaction();
     }
@@ -66,6 +66,7 @@ public class TransactionManager {
   }
 
   private TransactionStatus beginTransaction() {
+    Database database = getDatabase();
     if (database == null) throw new DatabaseNotExistException();
     if (underTransaction) return new TransactionStatus(false, "Exception: Transaction ongoing!");
     else {
@@ -75,6 +76,7 @@ public class TransactionManager {
   }
 
   private TransactionStatus checkpointTransaction() {
+    Database database = getDatabase();
     if (underTransaction) {
       commitTransaction();
     }
@@ -84,7 +86,7 @@ public class TransactionManager {
   }
 
   private TransactionStatus readTransaction(LogicalPlan plan) {
-    if (!manager.ISOLATION) {
+    if (!Manager.ISOLATION) {
       ArrayList<String> tableNames = getTableName(plan);
       if (tableNames != null)
         for (String tableName : tableNames) {
@@ -102,7 +104,7 @@ public class TransactionManager {
         }
       return new TransactionStatus(true, plan.getMsg());
     }
-    if (manager.ISOLATION) {
+    if (Manager.ISOLATION) {
       ArrayList<String> tableNames = getTableName(plan);
       if (tableNames != null)
         for (String tableName : tableNames) {
@@ -136,10 +138,12 @@ public class TransactionManager {
   }
 
   private TransactionStatus commitTransaction() {
+    Database database = getDatabase();
     if (database == null) throw new DatabaseNotExistException();
     this.releaseTransactionReadWriteLock();
     while (!plans.isEmpty()) {
       LogicalPlan plan = plans.getFirst();
+      // TODO: log
       plans.removeFirst();
     }
     underTransaction = false;
@@ -147,6 +151,7 @@ public class TransactionManager {
   }
 
   private TransactionStatus savepointTransaction(String name) {
+    Database database = getDatabase();
     if (database == null) throw new DatabaseNotExistException();
     if (!underTransaction)
       return new TransactionStatus(false, "Exception: No transaction ongoing!");
@@ -156,6 +161,7 @@ public class TransactionManager {
   }
 
   private TransactionStatus rollbackTransaction(String name) {
+    Database database = getDatabase();
     if (database == null) throw new DatabaseNotExistException();
     int index = 0;
     if (name != null) {
@@ -163,13 +169,13 @@ public class TransactionManager {
       if (tmp == null) {
         return new TransactionStatus(false, "Savepoint不存在");
       }
-      index = tmp.intValue();
+      index = tmp;
     }
     try {
       for (int i = plans.size(); i > index; i--) {
         LogicalPlan plan = plans.removeLast();
         if (plan instanceof SelectPlan || plan instanceof ShowTablePlan) {
-          if (manager.ISOLATION) {
+          if (Manager.ISOLATION) {
             ArrayList<String> tableNames = getTableName(plan);
             if (tableNames != null)
               for (String tableName : tableNames) {
@@ -208,6 +214,7 @@ public class TransactionManager {
   }
 
   private boolean getTransactionReadLock(String tableName) {
+    Database database = getDatabase();
     Table table = database.get(tableName);
     if (table == null) return false;
     ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
@@ -217,6 +224,7 @@ public class TransactionManager {
   }
 
   private boolean getTransactionWriteLock(String tableName) {
+    Database database = getDatabase();
     Table table = database.get(tableName);
     if (table == null) return false;
     ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
@@ -231,6 +239,7 @@ public class TransactionManager {
   }
 
   private boolean releaseTransactionReadLock(String tableName) {
+    Database database = getDatabase();
     Table table = database.get(tableName);
     if (table == null) return false;
     ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
@@ -242,6 +251,7 @@ public class TransactionManager {
   }
 
   private boolean releaseTransactionWriteLock(String tableName) {
+    Database database = getDatabase();
     Table table = database.get(tableName);
     if (table == null) return false;
     ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();

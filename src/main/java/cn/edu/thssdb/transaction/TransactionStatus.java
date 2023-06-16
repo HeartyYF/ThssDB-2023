@@ -13,7 +13,7 @@ public class TransactionStatus {
     this.message = message;
   }
 
-  public String getMessage() {
+  public String getMsg() {
     return this.message;
   }
 

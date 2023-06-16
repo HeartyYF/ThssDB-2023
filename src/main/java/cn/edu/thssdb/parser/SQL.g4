@@ -16,6 +16,11 @@ sqlStmt :
     | createUserStmt
     | dropDbStmt
     | dropUserStmt
+    | commitStmt
+    | beginTransactionStmt
+    | rollbackStmt
+    | savepointStmt
+    | checkpointStmt
     | deleteStmt
     | dropTableStmt
     | insertStmt
@@ -41,6 +46,21 @@ createUserStmt :
 
 dropUserStmt :
     K_DROP K_USER ( K_IF K_EXISTS )? userName ;
+
+commitStmt :
+    K_COMMIT ;
+
+beginTransactionStmt :
+    K_BEGIN K_TRANSACTION ;
+
+rollbackStmt :
+    K_ROLLBACK IDENTIFIER ;
+
+savepointStmt :
+    K_SAVEPOINT IDENTIFIER ;
+
+checkpointStmt :
+    K_CHECKPOINT ;
 
 createTableStmt :
     K_CREATE K_TABLE tableName
@@ -191,8 +211,11 @@ T_STRING : S T R I N G;
 K_ADD : A D D;
 K_ALL : A L L;
 K_AS : A S;
+K_BEGIN : B E G I N;
 K_BY : B Y;
+K_CHECKPOINT : C H E C K P O I N T;
 K_COLUMN : C O L U M N;
+K_COMMIT : C O M M I T;
 K_CREATE : C R E A T E;
 K_DATABASE : D A T A B A S E;
 K_DATABASES : D A T A B A S E S;
@@ -214,11 +237,14 @@ K_ON : O N;
 K_PRIMARY : P R I M A R Y;
 K_QUIT : Q U I T;
 K_REVOKE : R E V O K E;
+K_ROLLBACK : R O L L B A C K;
+K_SAVEPOINT : S A V E P O I N T;
 K_SELECT : S E L E C T;
 K_SET : S E T;
 K_SHOW : S H O W;
 K_TABLE : T A B L E;
 K_TO : T O;
+K_TRANSACTION : T R A N S A C T I O N;
 K_UPDATE : U P D A T E;
 K_USE : U S E;
 K_USER : U S E R;

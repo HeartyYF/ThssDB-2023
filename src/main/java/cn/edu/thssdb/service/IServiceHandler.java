@@ -14,16 +14,20 @@ import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
 import cn.edu.thssdb.schema.Manager;
+import cn.edu.thssdb.transaction.TransactionManager;
+import cn.edu.thssdb.transaction.TransactionStatus;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.StatusUtil;
 import org.apache.thrift.TException;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IServiceHandler implements IService.Iface {
 
   private static final AtomicInteger sessionCnt = new AtomicInteger(0);
+  private HashMap<Long, TransactionManager> sessionTransactionManager = new HashMap<>();
 
   @Override
   public GetTimeResp getTime(GetTimeReq req) throws TException {
@@ -35,12 +39,16 @@ public class IServiceHandler implements IService.Iface {
 
   @Override
   public ConnectResp connect(ConnectReq req) throws TException {
+    sessionTransactionManager.put(
+            (long) sessionCnt.get(),
+        new TransactionManager(sessionCnt.get()));
     return new ConnectResp(StatusUtil.success(), sessionCnt.getAndIncrement());
   }
 
   @Override
   public DisconnectResp disconnect(DisconnectReq req) throws TException {
     Manager.getInstance().deleteSession(req.getSessionId());
+    sessionTransactionManager.remove(req.getSessionId());
     return new DisconnectResp(StatusUtil.success());
   }
 
@@ -54,7 +62,8 @@ public class IServiceHandler implements IService.Iface {
     try {
       LogicalPlan plan = LogicalGenerator.generate(req.statement);
       plan.setSessionId(req.getSessionId());
-      plan.exec();
+      // plan.exec();
+      TransactionStatus status = sessionTransactionManager.get(req.getSessionId()).exec(plan);
       System.out.println("[DEBUG] " + plan);
       if (plan instanceof SelectPlan) {
         // System.out.println(((SelectPlan) plan).getRowList());
@@ -62,7 +71,7 @@ public class IServiceHandler implements IService.Iface {
             .setRowList(((SelectPlan) plan).getRowList())
             .setColumnsList(((SelectPlan) plan).getColumnList());
       }
-      String msg = plan.getMsg();
+      String msg = status.getMsg();
       if (msg != null) {
         return new ExecuteStatementResp(StatusUtil.success(msg), false);
       }

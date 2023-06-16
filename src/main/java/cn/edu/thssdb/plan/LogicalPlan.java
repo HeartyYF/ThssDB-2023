@@ -39,6 +39,11 @@ public abstract class LogicalPlan {
     SELECT,
     DELETE,
     UPDATE,
+    BEGIN_TRANSACTION,
+    COMMIT,
+    ROLLBACK,
+    SAVEPOINT,
+    CHECKPOINT,
   }
 
   public void exec() {}

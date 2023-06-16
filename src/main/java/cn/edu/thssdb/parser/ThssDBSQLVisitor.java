@@ -162,11 +162,22 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
     return new DeletePlan(tableName, ctx.multipleCondition());
   }
 
+  @Override
   public LogicalPlan visitUpdateStmt(SQLParser.UpdateStmtContext ctx) {
     String tableName = ctx.tableName().getText();
     String columnName = ctx.columnName().getText();
     String attrValue = ctx.expression().getText();
     return new UpdatePlan(tableName, columnName, attrValue, ctx.multipleCondition());
+  }
+
+  @Override
+  public LogicalPlan visitSavepointStmt(SQLParser.SavepointStmtContext ctx) {
+    return new SavepointPlan(ctx.IDENTIFIER().getText());
+  }
+
+  @Override
+  public LogicalPlan visitRollbackStmt(SQLParser.RollbackStmtContext ctx) {
+    return new RollbackPlan(ctx.IDENTIFIER().getText());
   }
   // TODO: parser to more logical plan
 }
