@@ -101,10 +101,10 @@ public class SelectPlan extends LogicalPlan {
 
   @Override
   public void exec() {
-    Database db = Manager.getInstance().getCurrentDatabase();
+    Database db = Manager.getInstance().getCurrentDatabase(sessionId);
     // 这里直接假定没有join了
     QueryTable[] qts = new QueryTable[1];
-    qts[0] = new QueryTable(tableNames, columnNames, condition, columnTableNames, joinCondition);
+    qts[0] = new QueryTable(sessionId, tableNames, columnNames, condition, columnTableNames, joinCondition);
     result = new QueryResult(qts);
     this.msg = db.get(tableNames.get(0)).toString() + result.getResult();
   }

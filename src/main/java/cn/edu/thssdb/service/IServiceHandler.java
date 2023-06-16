@@ -13,6 +13,7 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.StatusUtil;
 import org.apache.thrift.TException;
@@ -39,6 +40,7 @@ public class IServiceHandler implements IService.Iface {
 
   @Override
   public DisconnectResp disconnect(DisconnectReq req) throws TException {
+    Manager.getInstance().deleteSession(req.getSessionId());
     return new DisconnectResp(StatusUtil.success());
   }
 
@@ -51,6 +53,7 @@ public class IServiceHandler implements IService.Iface {
     // TODO: implement execution logic
     try {
       LogicalPlan plan = LogicalGenerator.generate(req.statement);
+      plan.setSessionId(req.getSessionId());
       plan.exec();
       System.out.println("[DEBUG] " + plan);
       if (plan instanceof SelectPlan) {

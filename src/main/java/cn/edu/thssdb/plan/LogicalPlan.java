@@ -4,6 +4,7 @@ public abstract class LogicalPlan {
 
   protected LogicalPlanType type;
   protected String msg;
+  protected long sessionId;
 
   public LogicalPlan(LogicalPlanType type) {
     this.type = type;
@@ -16,6 +17,14 @@ public abstract class LogicalPlan {
 
   public String getMsg() {
     return msg;
+  }
+
+  public long getSessionId() {
+    return sessionId;
+  }
+
+  public void setSessionId(long sessionId) {
+    this.sessionId = sessionId;
   }
 
   public enum LogicalPlanType {

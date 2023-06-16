@@ -18,6 +18,6 @@ public class SwitchDatabasePlan extends LogicalPlan {
 
   @Override
   public void exec() {
-    Manager.getInstance().switchDatabase(databaseName);
+    Manager.getInstance().switchDatabase(databaseName, sessionId);
   }
 }

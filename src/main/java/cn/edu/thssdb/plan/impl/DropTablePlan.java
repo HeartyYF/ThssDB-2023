@@ -24,7 +24,7 @@ public class DropTablePlan extends LogicalPlan {
 
   @Override
   public void exec() {
-    Database database = Manager.getInstance().getCurrentDatabase();
+    Database database = Manager.getInstance().getCurrentDatabase(sessionId);
     if (database == null) {
       throw new DatabaseNotExistException();
     }

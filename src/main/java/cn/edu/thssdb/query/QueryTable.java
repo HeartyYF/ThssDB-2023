@@ -27,13 +27,14 @@ public class QueryTable implements Iterator<Row> {
   public Iterator<Row> rowIterator;
 
   public QueryTable(
+          long sessionId,
       ArrayList<String> tableNames,
       ArrayList<String> columnNames,
       ArrayList<String> condition,
       ArrayList<String> columnTableNames,
       ArrayList<String> joinCondition) {
     for (String tableName : tableNames) {
-      tables.add(Manager.getInstance().getCurrentDatabase().get(tableName));
+      tables.add(Manager.getInstance().getCurrentDatabase(sessionId).get(tableName));
     }
     this.columnNames = columnNames;
     this.columnTableNames = columnTableNames;

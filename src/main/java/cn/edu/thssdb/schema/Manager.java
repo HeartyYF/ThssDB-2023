@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Manager {
   private HashMap<String, Database> databases;
-  private Database currentDatabase;
+  private HashMap<Long, Database> currentDatabase;
   private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   public static boolean ISOLATION = true;
@@ -20,7 +20,7 @@ public class Manager {
 
   public Manager() {
     databases = new HashMap<>();
-    currentDatabase = null;
+    currentDatabase = new HashMap<>();
     File dir = new File(Global.DATA_ROOT_DIR);
     if (!dir.exists()) {
       dir.mkdirs();
@@ -31,7 +31,7 @@ public class Manager {
     return databases.containsKey(name);
   }
 
-  public void createDatabaseIfNotExists(String name) {
+  public void createDatabaseIfNotExists(String name, long sessionId) {
     //    if (!databaseExists(name)) {
     //      databases.put(name, new Database(name));
     //    } else {
@@ -41,11 +41,11 @@ public class Manager {
       lock.writeLock().lock();
       if (!databaseExists(name)) databases.put(name, new Database(name));
       else throw new DuplicateDatabaseException(name);
-      if (currentDatabase == null) {
+      if (!currentDatabase.containsKey(sessionId)) {
         try {
           lock.readLock().lock();
           if (!databaseExists(name)) throw new DatabaseNotExistException(name);
-          currentDatabase = databases.get(name);
+          currentDatabase.put(sessionId, databases.get(name));
         } finally {
           lock.readLock().unlock();
         }
@@ -67,11 +67,11 @@ public class Manager {
     }
   }
 
-  public void switchDatabase(String name) {
+  public void switchDatabase(String name, long sessionId) {
     try {
       lock.readLock().lock();
       if (!databaseExists(name)) throw new DatabaseNotExistException(name);
-      currentDatabase = databases.get(name);
+      currentDatabase.put(sessionId, databases.get(name));
     } finally {
       lock.readLock().unlock();
     }
@@ -87,8 +87,12 @@ public class Manager {
     }
   }
 
-  public Database getCurrentDatabase() {
-    return currentDatabase;
+  public Database getCurrentDatabase(long sessionId) {
+    return currentDatabase.get(sessionId);
+  }
+
+  public void deleteSession(long sessionId) {
+    currentDatabase.remove(sessionId);
   }
 
   private static class ManagerHolder {

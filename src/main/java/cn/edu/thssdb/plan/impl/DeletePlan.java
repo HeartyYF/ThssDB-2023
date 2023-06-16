@@ -34,7 +34,7 @@ public class DeletePlan extends LogicalPlan {
 
   public void exec() {
     // 获取数据库和表
-    Database db = Manager.getInstance().getCurrentDatabase();
+    Database db = Manager.getInstance().getCurrentDatabase(sessionId);
     if (db == null) {
       throw new DatabaseNotExistException();
     }

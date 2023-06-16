@@ -41,7 +41,7 @@ public class CreateTablePlan extends LogicalPlan {
       }
     }
     Manager.getInstance()
-        .getCurrentDatabase()
+        .getCurrentDatabase(sessionId)
         .create(tableName, columns.toArray(new Column[columns.size()]));
   }
 }
