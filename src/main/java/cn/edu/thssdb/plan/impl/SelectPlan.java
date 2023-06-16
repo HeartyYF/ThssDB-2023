@@ -104,7 +104,9 @@ public class SelectPlan extends LogicalPlan {
     Database db = Manager.getInstance().getCurrentDatabase(sessionId);
     // 这里直接假定没有join了
     QueryTable[] qts = new QueryTable[1];
-    qts[0] = new QueryTable(sessionId, tableNames, columnNames, condition, columnTableNames, joinCondition);
+    qts[0] =
+        new QueryTable(
+            sessionId, tableNames, columnNames, condition, columnTableNames, joinCondition);
     result = new QueryResult(qts);
     this.msg = db.get(tableNames.get(0)).toString() + result.getResult();
   }
@@ -115,5 +117,9 @@ public class SelectPlan extends LogicalPlan {
 
   public List<List<String>> getRowList() {
     return result.getRowList();
+  }
+
+  public List<String> getColumnList() {
+    return result.getColumnList();
   }
 }

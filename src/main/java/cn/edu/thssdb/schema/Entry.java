@@ -24,10 +24,9 @@ public class Entry implements Comparable<Entry>, Serializable {
   }
 
   public String toString() {
-    if(value != null){
+    if (value != null) {
       return value.toString();
-    }
-    else return "null";
+    } else return "null";
   }
 
   @Override

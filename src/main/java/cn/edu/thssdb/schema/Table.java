@@ -292,6 +292,10 @@ public class Table implements Iterable<Row> {
     return str;
   }
 
+  public Column getColumn(int index) {
+    return columns.get(index);
+  }
+
   public String getTableFolderPath() {
     return Global.DATA_ROOT_DIR + File.separator + databaseName + File.separator + "tables";
   }

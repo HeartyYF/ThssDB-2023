@@ -1,5 +1,6 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.utils.Cell;
 
@@ -50,5 +51,16 @@ public class QueryResult {
     // TODO
     // don't know what this function is for
     return null;
+  }
+
+  public List<String> getColumnList() {
+    List<String> result = new LinkedList<>();
+    for (QueryTable table : queryTables) {
+      List<Column> columns = table.getColumns();
+      for (Column column : columns) {
+        result.add(column.getColumnName());
+      }
+    }
+    return result;
   }
 }

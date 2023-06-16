@@ -3,10 +3,7 @@ package cn.edu.thssdb.query;
 import cn.edu.thssdb.exception.AmbiguousColumnException;
 import cn.edu.thssdb.exception.ColumnNotExistException;
 import cn.edu.thssdb.exception.TableNotMatchException;
-import cn.edu.thssdb.schema.Entry;
-import cn.edu.thssdb.schema.Manager;
-import cn.edu.thssdb.schema.Row;
-import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.schema.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +24,7 @@ public class QueryTable implements Iterator<Row> {
   public Iterator<Row> rowIterator;
 
   public QueryTable(
-          long sessionId,
+      long sessionId,
       ArrayList<String> tableNames,
       ArrayList<String> columnNames,
       ArrayList<String> condition,
@@ -356,6 +353,20 @@ public class QueryTable implements Iterator<Row> {
       default:
         return ori;
     }
+  }
+
+  public List<Column> getColumns() {
+    List<Column> res = new ArrayList<>();
+    if (tables.size() >= 2) {
+      for (int i = 0; i < columnIndexes.size(); i++) {
+        res.add(tables.get(tableColumnOrder.get(i)).getColumn(columnIndexes.get(i)));
+      }
+    } else {
+      for (int index : columnIndexes) {
+        res.add(table.getColumn(index));
+      }
+    }
+    return res;
   }
 
   @Override

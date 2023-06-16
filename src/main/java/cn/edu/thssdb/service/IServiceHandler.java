@@ -59,7 +59,8 @@ public class IServiceHandler implements IService.Iface {
       if (plan instanceof SelectPlan) {
         // System.out.println(((SelectPlan) plan).getRowList());
         return new ExecuteStatementResp(StatusUtil.success(), true)
-            .setRowList(((SelectPlan) plan).getRowList());
+            .setRowList(((SelectPlan) plan).getRowList())
+            .setColumnsList(((SelectPlan) plan).getColumnList());
       }
       String msg = plan.getMsg();
       if (msg != null) {
