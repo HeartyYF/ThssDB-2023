@@ -359,7 +359,7 @@ public class QueryTable implements Iterator<Row> {
     List<Column> res = new ArrayList<>();
     if (tables.size() >= 2) {
       for (int i = 0; i < columnIndexes.size(); i++) {
-        res.add(tables.get(tableColumnOrder.get(i)).getColumn(columnIndexes.get(i)));
+        res.add(tables.get(tableColumnOrder.get(i) - 1).getColumn(columnIndexes.get(i)));
       }
     } else {
       for (int index : columnIndexes) {
