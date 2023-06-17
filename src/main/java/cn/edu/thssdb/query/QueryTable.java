@@ -362,6 +362,9 @@ public class QueryTable implements Iterator<Row> {
         res.add(tables.get(tableColumnOrder.get(i) - 1).getColumn(columnIndexes.get(i)));
       }
     } else {
+      if (columnIndexes == null) {
+        return table.getColumns();
+      }
       for (int index : columnIndexes) {
         res.add(table.getColumn(index));
       }
