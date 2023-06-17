@@ -40,8 +40,7 @@ public class IServiceHandler implements IService.Iface {
   @Override
   public ConnectResp connect(ConnectReq req) throws TException {
     sessionTransactionManager.put(
-            (long) sessionCnt.get(),
-        new TransactionManager(sessionCnt.get()));
+        (long) sessionCnt.get(), new TransactionManager(sessionCnt.get()));
     return new ConnectResp(StatusUtil.success(), sessionCnt.getAndIncrement());
   }
 

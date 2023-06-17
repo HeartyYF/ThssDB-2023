@@ -39,8 +39,10 @@ public class TransactionManager {
     else if (plan instanceof UpdatePlan || plan instanceof DeletePlan || plan instanceof InsertPlan)
       return writeTransaction(plan);
     else if (plan instanceof CommitPlan) return commitTransaction();
-    else if (plan instanceof RollbackPlan) return rollbackTransaction(((RollbackPlan) plan).savepointName);
-    else if (plan instanceof SavepointPlan) return savepointTransaction(((SavepointPlan) plan).savepointName);
+    else if (plan instanceof RollbackPlan)
+      return rollbackTransaction(((RollbackPlan) plan).savepointName);
+    else if (plan instanceof SavepointPlan)
+      return savepointTransaction(((SavepointPlan) plan).savepointName);
     else if (plan instanceof BeginTransactionPlan) return beginTransaction();
     else if (plan instanceof CheckpointPlan) return checkpointTransaction();
     else return endTransaction(plan);

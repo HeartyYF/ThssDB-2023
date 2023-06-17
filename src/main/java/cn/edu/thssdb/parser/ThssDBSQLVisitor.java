@@ -179,5 +179,20 @@ public class ThssDBSQLVisitor extends SQLBaseVisitor<LogicalPlan> {
   public LogicalPlan visitRollbackStmt(SQLParser.RollbackStmtContext ctx) {
     return new RollbackPlan(ctx.IDENTIFIER().getText());
   }
+
+  @Override
+  public LogicalPlan visitCommitStmt(SQLParser.CommitStmtContext ctx) {
+    return new CommitPlan();
+  }
+
+  @Override
+  public LogicalPlan visitBeginTransactionStmt(SQLParser.BeginTransactionStmtContext ctx) {
+    return new BeginTransactionPlan();
+  }
+
+  @Override
+  public LogicalPlan visitCheckpointStmt(SQLParser.CheckpointStmtContext ctx) {
+    return new CheckpointPlan();
+  }
   // TODO: parser to more logical plan
 }
