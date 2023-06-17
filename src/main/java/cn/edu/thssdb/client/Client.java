@@ -225,8 +225,13 @@ public class Client {
   }
 
   private static void showHelp() {
-    // TODO
-    println("DO IT YOURSELF");
+    println("----------------------");
+    println("At first, connect with your username and password as following:");
+    println("connect <username> <password>");
+    println("Then you could execute sql statement, such as create database, create table, and etc.");
+    println("disconnect at last");
+    println("----------------------");
+
   }
 
   private static void echoStarting() {
