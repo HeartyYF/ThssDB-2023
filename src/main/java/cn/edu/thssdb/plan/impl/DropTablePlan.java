@@ -29,5 +29,6 @@ public class DropTablePlan extends LogicalPlan {
       throw new DatabaseNotExistException();
     }
     database.dropTable(this.tableName);
+    this.msg = "successfully drop table " + tableName;
   }
 }

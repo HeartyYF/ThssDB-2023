@@ -43,5 +43,7 @@ public class CreateTablePlan extends LogicalPlan {
     Manager.getInstance()
         .getCurrentDatabase(sessionId)
         .create(tableName, columns.toArray(new Column[columns.size()]));
+    this.msg = "successfully create table " + tableName;
   }
+
 }

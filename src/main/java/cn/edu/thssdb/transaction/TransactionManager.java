@@ -64,7 +64,7 @@ public class TransactionManager {
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     }
-    return new TransactionStatus(true, "");
+    return new TransactionStatus(true, plan.getMsg());
   }
 
   private TransactionStatus beginTransaction() {
@@ -136,7 +136,7 @@ public class TransactionManager {
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     }
-    return new TransactionStatus(true, "Success");
+    return new TransactionStatus(true, plan.getMsg());
   }
 
   private TransactionStatus commitTransaction() {

@@ -148,6 +148,7 @@ public class InsertPlan extends LogicalPlan {
       }
     }
     insert();
+    this.msg = "successfully insert!";
   }
 
   @Override

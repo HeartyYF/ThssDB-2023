@@ -65,6 +65,8 @@ public class DeletePlan extends LogicalPlan {
         rowsHasDelete.add(row);
       }
     }
+    this.msg = "successfully delete!";
+
   }
 
   @Override

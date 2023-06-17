@@ -174,6 +174,7 @@ public class UpdatePlan extends LogicalPlan {
         }
       }
     }
+    this.msg = "successfully insert!";
   }
 
   @Override

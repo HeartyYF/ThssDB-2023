@@ -38,5 +38,6 @@ public class CreateDatabasePlan extends LogicalPlan {
   @Override
   public void exec() {
     Manager.getInstance().createDatabaseIfNotExists(databaseName, sessionId);
+    this.msg = "successfully create database " + databaseName;
   }
 }
