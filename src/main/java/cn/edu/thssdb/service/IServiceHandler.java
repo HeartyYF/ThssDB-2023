@@ -47,6 +47,7 @@ public class IServiceHandler implements IService.Iface {
   @Override
   public DisconnectResp disconnect(DisconnectReq req) throws TException {
     Manager.getInstance().deleteSession(req.getSessionId());
+    sessionTransactionManager.get(req.getSessionId()).disconnectEndTransaction();
     sessionTransactionManager.remove(req.getSessionId());
     return new DisconnectResp(StatusUtil.success());
   }

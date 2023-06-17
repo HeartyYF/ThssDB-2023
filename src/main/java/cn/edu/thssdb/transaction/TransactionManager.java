@@ -67,6 +67,13 @@ public class TransactionManager {
     return new TransactionStatus(true, plan.getMsg());
   }
 
+  public void disconnectEndTransaction() {
+    if (underTransaction) {
+      commitTransaction();
+    }
+    underTransaction = false;
+  }
+
   private TransactionStatus beginTransaction() {
     Database database = getDatabase();
     if (database == null) throw new DatabaseNotExistException();
