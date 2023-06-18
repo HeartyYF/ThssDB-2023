@@ -45,5 +45,4 @@ public class CreateTablePlan extends LogicalPlan {
         .create(tableName, columns.toArray(new Column[columns.size()]));
     this.msg = "successfully create table " + tableName;
   }
-
 }

@@ -20,6 +20,5 @@ public class DropDatabasePlan extends LogicalPlan {
   public void exec() {
     Manager.getInstance().deleteDatabase(databaseName);
     this.msg = "successfully drop database " + databaseName;
-
   }
 }

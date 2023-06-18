@@ -66,7 +66,6 @@ public class DeletePlan extends LogicalPlan {
       }
     }
     this.msg = "successfully delete!";
-
   }
 
   @Override

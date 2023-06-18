@@ -228,10 +228,10 @@ public class Client {
     println("----------------------");
     println("At first, connect with your username and password as following:");
     println("connect <username> <password>");
-    println("Then you could execute sql statement, such as create database, create table, and etc.");
+    println(
+        "Then you could execute sql statement, such as create database, create table, and etc.");
     println("disconnect at last");
     println("----------------------");
-
   }
 
   private static void echoStarting() {
